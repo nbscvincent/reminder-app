@@ -70,9 +70,9 @@ fun RegistrationScreen(modifier: Modifier = Modifier) {
                     .padding(start = 25.dp, end = 25.dp)
             )
             Text(
-                text = "Welcome",
+                text = "Register to have an account",
                 fontWeight = FontWeight.Bold,
-                fontSize = 30.sp,
+                fontSize = 20.sp,
                 color = Color(0xFF6562DF),
             )
             Spacer(modifier = Modifier.height(50.dp))
