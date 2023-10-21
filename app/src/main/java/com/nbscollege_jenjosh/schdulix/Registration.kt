@@ -41,10 +41,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegistrationScreen(modifier: Modifier = Modifier) {
+fun RegistrationScreen( navController: NavController ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }

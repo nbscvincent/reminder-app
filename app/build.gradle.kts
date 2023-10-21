@@ -67,4 +67,9 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    implementation("androidx.core:core-splashscreen:1.0.1")
+
+    val nav_version = "2.7.4"
+    implementation("androidx.navigation:navigation-compose:$nav_version")
 }
