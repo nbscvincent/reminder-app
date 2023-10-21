@@ -30,6 +30,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -140,6 +141,9 @@ fun LoginScreen() {
                 shape = RoundedCornerShape(10.dp),
                 onValueChange = { email = it },
                 label = { Text(text = "Enter your email") },
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = Color(0xFF6562DF),
+                    unfocusedBorderColor = Color(0xFF6562DF)),
                 trailingIcon = {
                     Icon(imageVector = Icons.Default.Email, contentDescription = "Email")
                 }
@@ -153,6 +157,9 @@ fun LoginScreen() {
                 shape = RoundedCornerShape(10.dp),
                 onValueChange = {},
                 label = { Text(text = "Password") },
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = Color(0xFF6562DF),
+                    unfocusedBorderColor = Color(0xFF6562DF)),
                 trailingIcon = {
                     Icon(imageVector = Icons.Default.Lock, contentDescription = "Password")
                 }
