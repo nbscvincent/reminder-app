@@ -113,14 +113,14 @@ fun LoginScreen() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(0.dp))
             Image(
-                painter = painterResource(id = R.drawable.img_nbs),
+                painter = painterResource(id = R.drawable.schdulix_loginphoto),
                 contentDescription = "nbs",
-                modifier = Modifier.size(200.dp)
+                modifier = Modifier.size(300.dp)
             )
             Text(
-                text = "Welcome to Schdulix!",
+                text = "Welcome back!",
                 fontWeight = FontWeight.Bold,
                 fontSize = 30.sp,
                 color = Color.Black
