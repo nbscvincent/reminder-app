@@ -76,7 +76,7 @@ fun LoginScreen() {
                         shape = RoundedCornerShape(10.dp),
                     ) {
                         Text(
-                            text = "Log In",
+                            text = "Sign In",
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp,
                             color = Color.White,
