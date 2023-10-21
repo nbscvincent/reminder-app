@@ -1,6 +1,9 @@
 package com.nbscollege_jenjosh.schdulix
 
 import android.annotation.SuppressLint
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
+import android.widget.DatePicker
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -14,10 +17,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
@@ -30,20 +37,27 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.util.Calendar
 
+@SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddSchedule(modifier: Modifier = Modifier) {
@@ -52,6 +66,54 @@ fun AddSchedule(modifier: Modifier = Modifier) {
     var startDate by remember { mutableStateOf("") }
     var endDate by remember { mutableStateOf("") }
 
+    val mContext = LocalContext.current
+    val mDate = remember { mutableStateOf("") }
+
+    val mYear: Int
+    val mMonth: Int
+    val mDay: Int
+
+    val mCalendar = Calendar.getInstance()
+
+    mYear = mCalendar.get(Calendar.YEAR)
+    mMonth = mCalendar.get(Calendar.MONTH)
+    mDay = mCalendar.get(Calendar.DAY_OF_MONTH)
+    val mHour = mCalendar[Calendar.HOUR_OF_DAY]
+    val mMinute = mCalendar[Calendar.MINUTE]
+
+    val mDateStartDate = DatePickerDialog(
+        mContext,
+        { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
+            startDate = "$mDayOfMonth/${mMonth+1}/$mYear"
+        }, mYear, mMonth, mDay
+    )
+    val mDateEndDate = DatePickerDialog(
+        mContext,
+        { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
+            endDate = "$mDayOfMonth/${mMonth+1}/$mYear"
+        }, mYear, mMonth, mDay
+    )
+
+    val mTimePickerDialog = TimePickerDialog(
+        mContext,
+        {_, mHour : Int, mMinute: Int ->
+            time = "$mHour:$mMinute"
+        }, mHour, mMinute, false
+    )
+
+    startDate = "Start Date"
+    endDate = "End Date"
+    time = "Time"
+
+    val state = rememberScrollState()
+    LaunchedEffect(Unit) { state.animateScrollTo(100) }
+
+    var timeCount by remember { mutableStateOf (1) }
+
+    val timeText = listOf<String>()
+    val textFieldInitValues = List(timeText.size){ "" }
+    val valueStateList = remember { mutableStateListOf<String>().apply { addAll(textFieldInitValues) } }
+
     Scaffold (
     ) { innerPadding ->
         Column(
@@ -59,9 +121,11 @@ fun AddSchedule(modifier: Modifier = Modifier) {
                 .padding(innerPadding)
                 .fillMaxSize()
                 .fillMaxWidth()
-                .background(Color.White),
+                .background(Color.White)
+                .verticalScroll(state),
             verticalArrangement = Arrangement.spacedBy(0.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
+
         ) {
             Spacer(modifier = Modifier.height(15.dp))
             Text(
@@ -84,24 +148,169 @@ fun AddSchedule(modifier: Modifier = Modifier) {
                 )
             )
             Spacer(modifier = Modifier.height(15.dp))
-            OutlinedTextField(
-                value = time,
-                onValueChange = { time = it },
-                shape = RoundedCornerShape(10.dp),
-                trailingIcon = {
-                    Icon(imageVector = Icons.Default.DateRange, contentDescription = "Time")
-                },
-                placeholder = { Text(text = "Time") },
+            Row (
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp),
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    textColor = Color.Black
+                    .padding(start = 25.dp, end = 25.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ){
+                Text(
+                    text = "Start",
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 15.sp,
+                    color = Color(0xFF6562DF),
                 )
-            )
+                Button(
+                    onClick = { mDateStartDate.show() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 25.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.White,
+                    ),
+                    border = BorderStroke(1.dp, Color(0xFF858585)),
+                    shape = RoundedCornerShape(5.dp),
+                ) {
+                    Text(
+                        text = startDate,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 15.sp,
+                        color = Color.Black,
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .padding(top = 10.dp, bottom = 10.dp)
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Icon(imageVector = Icons.Default.DateRange, contentDescription = "End Date")
+                }
+            }
+            Spacer(modifier = Modifier.height(15.dp))
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 25.dp, end = 25.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ){
+                Text(
+                    text = "End  ",
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 15.sp,
+                    color = Color(0xFF6562DF),
+                )
+                Button(
+                    onClick = { mDateEndDate.show() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 25.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.White,
+                    ),
+                    border = BorderStroke(1.dp, Color(0xFF858585)),
+                    shape = RoundedCornerShape(5.dp),
+                ) {
+                    Text(
+                        text = endDate,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 15.sp,
+                        color = Color.Black,
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .padding(top = 10.dp, bottom = 10.dp)
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Icon(imageVector = Icons.Default.DateRange, contentDescription = "End Date")
+                }
+            }
             Spacer(modifier = Modifier.height(15.dp))
             Button(
-                onClick = { },
+                onClick = { mTimePickerDialog.show() },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 25.dp, end = 25.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                ),
+                border = BorderStroke(1.dp, Color(0xFF858585)),
+                shape = RoundedCornerShape(5.dp),
+            ) {
+                Text(
+                    text = time,
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 15.sp,
+                    color = Color.Black,
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .padding(top = 10.dp, bottom = 10.dp)
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Icon(imageVector = Icons.Default.DateRange, contentDescription = "End Date")
+            }
+            Spacer(modifier = Modifier.height(15.dp))
+
+            timeText.forEachIndexed{
+                index, item ->
+                Text(
+                    text = "Add Time",
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 15.sp,
+                    color = Color.Black,
+                )
+            }
+
+            repeat(timeCount) {
+                Row (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ){
+                    Button(
+                        onClick = { timeCount-- },
+                        modifier = Modifier,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.White,
+                            ),
+                        border = BorderStroke(1.dp, Color.Red),
+                        shape = RoundedCornerShape(200.dp),
+                    ) {
+                        Text(
+                            text = "X",
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 20.sp,
+                            color = Color.Red,
+                        )
+                    }
+                    Button(
+                        onClick = { mTimePickerDialog.show() },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 10.dp, end = 0.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.White,
+                        ),
+                        border = BorderStroke(1.dp, Color(0xFF858585)),
+                        shape = RoundedCornerShape(5.dp),
+                    ) {
+                        Text(
+                            text = time,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 15.sp,
+                            color = Color.Black,
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .padding(top = 10.dp, bottom = 10.dp)
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        Icon(imageVector = Icons.Default.DateRange, contentDescription = "End Date")
+                    }
+                }
+                Spacer(modifier = Modifier.height(15.dp))
+            }
+            Button(
+                onClick = { timeCount++; },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp),
@@ -118,73 +327,7 @@ fun AddSchedule(modifier: Modifier = Modifier) {
                 )
             }
             Spacer(modifier = Modifier.height(15.dp))
-            Text(
-                text = "Duration",
-                fontWeight = FontWeight.Bold,
-                fontSize = 15.sp,
-                color = Color(0xFF6562DF),
-            )
-            Spacer(modifier = Modifier.height(15.dp))
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 25.dp, end = 25.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ){
-                Text(
-                    text = "Start",
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 15.sp,
-                    color = Color(0xFF6562DF),
-                )
-                OutlinedTextField(
-                    value = startDate,
-                    onValueChange = { startDate = it },
-                    shape = RoundedCornerShape(10.dp),
-                    trailingIcon = {
-                        Icon(imageVector = Icons.Default.DateRange, contentDescription = "Start Date")
-                    },
-                    placeholder = { Text(text = "Start Date") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 25.dp),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        textColor = Color.Black
-                    )
-                )
-            }
-            Spacer(modifier = Modifier.height(15.dp))
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 25.dp, end = 25.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-            ){
-                Text(
-                    text = "End  ",
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 15.sp,
-                    color = Color(0xFF6562DF),
-                )
-                OutlinedTextField(
-                    value = endDate,
-                    onValueChange = { endDate = it },
-                    shape = RoundedCornerShape(10.dp),
-                    trailingIcon = {
-                        Icon(imageVector = Icons.Default.DateRange, contentDescription = "End Date")
-                    },
-                    placeholder = { Text(text = "End Date") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 25.dp),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        textColor = Color.Black
-                    )
-                )
-            }
-            Spacer(modifier = Modifier.height(15.dp))
+
             Row (
                 modifier = Modifier
                     .fillMaxWidth()

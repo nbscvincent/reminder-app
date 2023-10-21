@@ -18,9 +18,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             SchdulixTheme {
                 //HomePage()
-                //AddSchedule()
+                AddSchedule()
                 //Profile()
-                ForgotPassword()
+                //ForgotPassword()
+                //myDatePicker()
             }
         }
     }
