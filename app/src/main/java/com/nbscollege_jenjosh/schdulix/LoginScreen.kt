@@ -116,7 +116,7 @@ fun LoginScreen() {
             Spacer(modifier = Modifier.height(0.dp))
             Image(
                 painter = painterResource(id = R.drawable.schdulix_loginphoto),
-                contentDescription = "nbs",
+                contentDescription = "Schdulix",
                 modifier = Modifier.size(300.dp)
             )
             Text(
