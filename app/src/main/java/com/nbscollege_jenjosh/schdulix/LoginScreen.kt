@@ -43,11 +43,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
 import com.nbscollege_jenjosh.schdulix.ui.theme.SchdulixTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen() {
+fun LoginScreen( navController:NavController ) {
     var email by remember { mutableStateOf("") }
     val password by remember { mutableStateOf("") }
     val isChecked = remember { mutableStateOf(true) }
@@ -68,7 +70,7 @@ fun LoginScreen() {
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Button(
-                        onClick = { },
+                        onClick = { navController.navigate(MainScreen.RegistrationScreen.name) },
                         modifier = Modifier
                             .fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(
