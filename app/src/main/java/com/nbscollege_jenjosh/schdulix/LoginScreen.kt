@@ -71,7 +71,7 @@ fun LoginScreen() {
                         modifier = Modifier
                             .fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Blue
+                            containerColor = Color(0xFF6562DF)
                         ),
                         shape = RoundedCornerShape(10.dp),
                     ) {
@@ -169,7 +169,7 @@ fun LoginScreen() {
                         checked = isChecked.value,
                         onCheckedChange = { isChecked.value = it },
                         enabled = true,
-                        colors = CheckboxDefaults.colors(Color.Blue)
+                        colors = CheckboxDefaults.colors(Color(0xFF6562DF))
                     )
                     Text(
                         text = "Remember me",
