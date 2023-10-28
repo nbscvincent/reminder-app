@@ -32,9 +32,7 @@ fun SchdulixApp (
         }
         NavHost(
             navController = navController,
-            //startDestination = MainScreen.Login.name,
-            //startDestination = MainScreen.AddSchedule.name,
-            startDestination = MainScreen.Home.name,
+            startDestination = MainScreen.Login.name,
             modifier = Modifier.padding(it)
         ) {
             composable(route = MainScreen.Login.name) {
@@ -46,7 +44,7 @@ fun SchdulixApp (
             composable(route = MainScreen.AddSchedule.name) {
                 AddSchedule( navController )
             }
-            composable(route = MainScreen.Home.name) {
+            composable(route = MainScreen.HomePage.name) {
                 HomePage( navController )
             }
             composable(route = MainScreen.Profile.name) {

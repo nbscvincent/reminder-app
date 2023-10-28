@@ -328,7 +328,7 @@ fun AddSchedule( navController: NavController ) {
             ){
                 Button(
                     onClick = {
-                              navController.navigate(MainScreen.Home.name)
+                              navController.navigate(MainScreen.HomePage.name)
                     },
                     modifier = Modifier
                         .padding(start = 25.dp, end = 25.dp),

@@ -3,7 +3,7 @@ package com.nbscollege_jenjosh.schdulix.navigation.routes
 enum class MainScreen() {
     Splash,
     Login,
-    Home,
+    HomePage,
     About,
     RegistrationScreen,
     AddSchedule,
