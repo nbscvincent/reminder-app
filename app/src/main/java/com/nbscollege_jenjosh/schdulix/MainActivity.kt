@@ -1,5 +1,6 @@
 package com.nbscollege_jenjosh.schdulix
 
+import android.content.Intent
 import android.os.Bundle
 import android.window.SplashScreen
 import androidx.activity.ComponentActivity
@@ -16,6 +17,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.nbscollege_jenjosh.schdulix.screens.SchdulixApp
 import com.nbscollege_jenjosh.schdulix.ui.theme.SchdulixTheme
 import com.nbscollege_jenjosh.schdulix.viewmodel.ScreenViewModel
+import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,6 +25,7 @@ class MainActivity : ComponentActivity() {
 
         val screenViewModel: ScreenViewModel by viewModels();
         screenViewModel.runSplashScreen()
+
 
         installSplashScreen().apply {
             setKeepOnScreenCondition {

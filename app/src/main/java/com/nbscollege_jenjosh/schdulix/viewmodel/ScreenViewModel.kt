@@ -2,6 +2,7 @@ package com.nbscollege_jenjosh.schdulix.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nbscollege_jenjosh.schdulix.SplashScreen
 import com.nbscollege_jenjosh.schdulix.navigation.state.ScreenUiState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +18,7 @@ class ScreenViewModel : ViewModel() {
     fun runSplashScreen() {
         viewModelScope.launch {
             // run background task here
-            delay(2000)
+            delay(1000)
             _loading.value = false
         }
     }
