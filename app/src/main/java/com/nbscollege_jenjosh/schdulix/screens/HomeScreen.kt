@@ -13,7 +13,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.nbscollege_jenjosh.schdulix.AddSchedule
+import com.nbscollege_jenjosh.schdulix.HomePage
 import com.nbscollege_jenjosh.schdulix.LoginScreen
+import com.nbscollege_jenjosh.schdulix.Profile
 import com.nbscollege_jenjosh.schdulix.RegistrationScreen
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
 
@@ -29,7 +32,9 @@ fun SchdulixApp (
         }
         NavHost(
             navController = navController,
-            startDestination = MainScreen.Login.name,
+            //startDestination = MainScreen.Login.name,
+            //startDestination = MainScreen.AddSchedule.name,
+            startDestination = MainScreen.Home.name,
             modifier = Modifier.padding(it)
         ) {
             composable(route = MainScreen.Login.name) {
@@ -37,6 +42,15 @@ fun SchdulixApp (
             }
             composable(route = MainScreen.RegistrationScreen.name) {
                 RegistrationScreen( navController )
+            }
+            composable(route = MainScreen.AddSchedule.name) {
+                AddSchedule( navController )
+            }
+            composable(route = MainScreen.Home.name) {
+                HomePage( navController )
+            }
+            composable(route = MainScreen.Profile.name) {
+                Profile( navController )
             }
         }
     }
