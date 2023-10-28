@@ -52,15 +52,21 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
 import java.util.Calendar
+
+
+data class TimeSchedule (var indexTime: Int = 0, var time: String = "" );
 
 @SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddSchedule(modifier: Modifier = Modifier) {
+fun AddSchedule( navController: NavController ) {
     var title by remember { mutableStateOf("") }
     var time by remember { mutableStateOf("") }
     var startDate by remember { mutableStateOf("") }
@@ -94,13 +100,6 @@ fun AddSchedule(modifier: Modifier = Modifier) {
         }, mYear, mMonth, mDay
     )
 
-    val mTimePickerDialog = TimePickerDialog(
-        mContext,
-        {_, mHour : Int, mMinute: Int ->
-            time = "$mHour:$mMinute"
-        }, mHour, mMinute, false
-    )
-
     startDate = "Start Date"
     endDate = "End Date"
     time = "Time"
@@ -108,11 +107,23 @@ fun AddSchedule(modifier: Modifier = Modifier) {
     val state = rememberScrollState()
     LaunchedEffect(Unit) { state.animateScrollTo(100) }
 
-    var timeCount by remember { mutableStateOf (1) }
+    var timeCount by remember { mutableStateOf (0) }
 
-    val timeText = listOf<String>()
-    val textFieldInitValues = List(timeText.size){ "" }
-    val valueStateList = remember { mutableStateListOf<String>().apply { addAll(textFieldInitValues) } }
+    var idfyState = 0
+    val schedList = remember { mutableStateListOf<String>() }
+    val inputvalue = remember { mutableStateOf( TextFieldValue() ) }
+
+    var hourStr = ""
+    var minuteStr = ""
+    val mTimePickerDialog = TimePickerDialog(
+        mContext,
+        {_, mHour : Int, mMinute: Int ->
+            hourStr = mHour.toString()
+            minuteStr = mMinute.toString()
+
+            schedList[idfyState] = "${hourStr.padStart(2,'0')}:${minuteStr.padStart(2,'0')}"
+        }, mHour, mMinute, false
+    )
 
     Scaffold (
     ) { innerPadding ->
@@ -224,55 +235,29 @@ fun AddSchedule(modifier: Modifier = Modifier) {
                 }
             }
             Spacer(modifier = Modifier.height(15.dp))
-            Button(
-                onClick = { mTimePickerDialog.show() },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 25.dp, end = 25.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                ),
-                border = BorderStroke(1.dp, Color(0xFF858585)),
-                shape = RoundedCornerShape(5.dp),
-            ) {
-                Text(
-                    text = time,
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 15.sp,
-                    color = Color.Black,
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                        .padding(top = 10.dp, bottom = 10.dp)
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                Icon(imageVector = Icons.Default.DateRange, contentDescription = "End Date")
-            }
-            Spacer(modifier = Modifier.height(15.dp))
 
-            timeText.forEachIndexed{
-                index, item ->
-                Text(
-                    text = "Add Time",
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 15.sp,
-                    color = Color.Black,
-                )
-            }
-
-            repeat(timeCount) {
+            schedList.forEachIndexed { index , setting ->
+                var stringLabel = "";
+                stringLabel = setting
+                if (setting == ""){
+                    stringLabel = "Time"
+                }
                 Row (
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp),
+                        .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 10.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
-                ){
+                ) {
                     Button(
-                        onClick = { timeCount-- },
+                        onClick = {
+                            timeCount--
+                            schedList.removeAt(index)
+                        },
                         modifier = Modifier,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.White,
-                            ),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.White,
+                        ),
                         border = BorderStroke(1.dp, Color.Red),
                         shape = RoundedCornerShape(200.dp),
                     ) {
@@ -284,7 +269,10 @@ fun AddSchedule(modifier: Modifier = Modifier) {
                         )
                     }
                     Button(
-                        onClick = { mTimePickerDialog.show() },
+                        onClick = {
+                            mTimePickerDialog.show()
+                            idfyState = index
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(start = 10.dp, end = 0.dp),
@@ -295,7 +283,7 @@ fun AddSchedule(modifier: Modifier = Modifier) {
                         shape = RoundedCornerShape(5.dp),
                     ) {
                         Text(
-                            text = time,
+                            text = stringLabel,
                             fontWeight = FontWeight.Normal,
                             fontSize = 15.sp,
                             color = Color.Black,
@@ -307,10 +295,14 @@ fun AddSchedule(modifier: Modifier = Modifier) {
                         Icon(imageVector = Icons.Default.DateRange, contentDescription = "End Date")
                     }
                 }
-                Spacer(modifier = Modifier.height(15.dp))
             }
+
             Button(
-                onClick = { timeCount++; },
+                onClick = {
+                    timeCount++
+
+                    schedList.add(inputvalue.value.text)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp),
@@ -327,7 +319,6 @@ fun AddSchedule(modifier: Modifier = Modifier) {
                 )
             }
             Spacer(modifier = Modifier.height(15.dp))
-
             Row (
                 modifier = Modifier
                     .fillMaxWidth()
@@ -336,7 +327,9 @@ fun AddSchedule(modifier: Modifier = Modifier) {
                 verticalAlignment = Alignment.CenterVertically,
             ){
                 Button(
-                    onClick = { },
+                    onClick = {
+                              navController.navigate(MainScreen.Home.name)
+                    },
                     modifier = Modifier
                         .padding(start = 25.dp, end = 25.dp),
                     colors = ButtonDefaults.buttonColors(

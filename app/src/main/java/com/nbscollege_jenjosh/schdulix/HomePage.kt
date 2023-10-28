@@ -1,6 +1,7 @@
 package com.nbscollege_jenjosh.schdulix
 
 import android.annotation.SuppressLint
+import android.provider.CalendarContract.Colors
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,6 +22,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
@@ -31,11 +34,15 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,11 +58,50 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomePage(modifier: Modifier = Modifier) {
+fun HomePage(
+    navController: NavController
+) {
+
     Scaffold (
+        topBar = {
+            TopAppBar(
+                title = {
+                    Image(
+                        painter = painterResource(id = R.drawable.schdulix_logo),
+                        contentDescription = "Schdulix",
+                        modifier = Modifier
+                            .height(50.dp)
+                            .width(180.dp)
+                    )
+                },
+                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.White),
+                actions = {
+                    IconButton(onClick = {
+                        navController.navigate(MainScreen.Profile.name)
+                    }) {
+                        Icon(
+                            imageVector = Icons.Filled.Person,
+                            contentDescription = "",
+                            tint = Color(0xFF6562DF),
+                            modifier = Modifier.size(128.dp)
+                        )
+                    }
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(
+                            imageVector = Icons.Filled.Close,
+                            contentDescription = "Logout",
+                            tint = Color(0xFF6562DF),
+                            modifier = Modifier.size(128.dp)
+                        )
+                    }
+                }
+            )
+        }
     ){ innerPadding ->
         Column(
             modifier = Modifier
@@ -66,28 +112,6 @@ fun HomePage(modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.spacedBy(0.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(modifier = Modifier.height(15.dp))
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ){
-                Image(
-                    painter = painterResource(id = R.drawable.schdulix_logo),
-                    contentDescription = "Schdulix",
-                    modifier = Modifier
-                        .height(50.dp)
-                        .width(180.dp)
-                )
-                Icon(
-                    modifier = Modifier.size(34.dp),
-                    imageVector = Icons.Default.Menu,
-                    contentDescription = "Menu",
-                    tint = Color(0xFF6562DF)
-                )
-            }
             Spacer(modifier = Modifier.height(15.dp))
             Text(
                 text = "My Schdulix",
@@ -109,7 +133,7 @@ fun HomePage(modifier: Modifier = Modifier) {
                 items(5) { index ->
                     Card(
                         modifier = Modifier
-                            .padding(top = 10.dp , bottom = 10.dp)
+                            .padding(top = 10.dp, bottom = 10.dp)
                             .fillMaxWidth(),
                             colors = CardDefaults.cardColors(
                                 containerColor = Color(0xFF6562DF)
@@ -128,7 +152,9 @@ fun HomePage(modifier: Modifier = Modifier) {
 
             Spacer(modifier = Modifier.height(15.dp))
             Button(
-                onClick = { },
+                onClick = {
+                    navController.navigate(MainScreen.AddSchedule.name)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp),
