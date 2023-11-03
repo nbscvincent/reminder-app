@@ -18,7 +18,7 @@ class ScreenViewModel : ViewModel() {
     fun runSplashScreen() {
         viewModelScope.launch {
             // run background task here
-            delay(1000)
+            delay(5000)
             _loading.value = false
         }
     }

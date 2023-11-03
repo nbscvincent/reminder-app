@@ -14,6 +14,7 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -30,66 +31,36 @@ import com.nbscollege_jenjosh.schdulix.Profile
 import com.nbscollege_jenjosh.schdulix.RegistrationScreen
 import com.nbscollege_jenjosh.schdulix.SplashScreen
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
+import kotlinx.coroutines.delay
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SchdulixApp (
-    viewModel: ScreenViewModel = viewModel(),
-    navController: NavHostController = rememberNavController()
+    screenViewModel: ScreenViewModel
 ){
-    /*var isLogin = false;
+    val navController: NavHostController = rememberNavController()
+    //CheckLogin( navController )
 
-    if (isLogin == false){
-        MainLogin(navController)
-    }else{
-        MainHomeScreen(navController)
-    }*/
-
-    CheckLogin( navController )
-
-    /*NavHost(
-        navController = navController,
-        startDestination = MainScreen.Splash.name,
-    ) {
-        composable(route = MainScreen.CheckLogin.name) {
-            CheckLogin( navController )
-        }
-        composable(route = MainScreen.Splash.name) {
-            SplashScreen( navController )
-        }
-        composable("login") {
-            CheckLogin( navController )
-        }
-    }*/
-
-    /*Scaffold {
-        Column(modifier = Modifier.padding(it)) {
-        }
+    Scaffold {
         NavHost(
             navController = navController,
-            startDestination = MainScreen.Login.name,
-            //startDestination = MainScreen.AddSchedule.name,
-            //startDestination = MainScreen.Home.name,
+            startDestination = MainScreen.Splash.name,
             modifier = Modifier.padding(it)
         ) {
             composable(route = MainScreen.Login.name) {
                 LoginScreen( navController )
             }
-            composable(route = MainScreen.RegistrationScreen.name) {
-                RegistrationScreen( navController )
-            }
-            composable(route = MainScreen.AddSchedule.name) {
-                AddSchedule( navController )
+            composable(route = MainScreen.Splash.name) {
+                SplashScreen( navController, screenViewModel )
             }
             composable(route = MainScreen.Home.name) {
                 HomePage( navController )
             }
-            composable(route = MainScreen.Profile.name) {
-                Profile( navController )
-            }
         }
-    }*/
+    }
+
+    //SplashScreen( navController, screenViewModel )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
