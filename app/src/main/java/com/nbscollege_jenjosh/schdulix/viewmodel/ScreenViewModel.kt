@@ -2,6 +2,7 @@ package com.nbscollege_jenjosh.schdulix.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nbscollege_jenjosh.schdulix.SplashScreen
 import com.nbscollege_jenjosh.schdulix.navigation.state.ScreenUiState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow

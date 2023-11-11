@@ -7,5 +7,6 @@ enum class MainScreen() {
     About,
     RegistrationScreen,
     AddSchedule,
-    Profile
+    Profile,
+    CheckLogin
 }
