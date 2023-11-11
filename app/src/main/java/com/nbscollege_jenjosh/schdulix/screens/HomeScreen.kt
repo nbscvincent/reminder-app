@@ -40,7 +40,6 @@ fun SchdulixApp (
     screenViewModel: ScreenViewModel
 ){
     val navController: NavHostController = rememberNavController()
-    //CheckLogin( navController )
 
     Scaffold {
         NavHost(
@@ -48,25 +47,21 @@ fun SchdulixApp (
             startDestination = MainScreen.Splash.name,
             modifier = Modifier.padding(it)
         ) {
-            composable(route = MainScreen.Login.name) {
-                LoginScreen( navController )
-            }
             composable(route = MainScreen.Splash.name) {
                 SplashScreen( navController, screenViewModel )
             }
-            composable(route = MainScreen.Home.name) {
-                HomePage( navController )
+            composable(route = MainScreen.CheckLogin.name) {
+                CheckLogin( )
             }
         }
     }
-
-    //SplashScreen( navController, screenViewModel )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CheckLogin( navController: NavHostController = rememberNavController() ){
-    var isLogin = true;
+fun CheckLogin( ){
+    val navController: NavHostController = rememberNavController()
+    var isLogin = false;
 
     if (isLogin == false){
         MainLogin(navController)
@@ -78,7 +73,7 @@ fun CheckLogin( navController: NavHostController = rememberNavController() ){
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainLogin(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController
 ){
     Scaffold {
         Column(modifier = Modifier.padding(it)) {
@@ -91,6 +86,9 @@ fun MainLogin(
             composable(route = MainScreen.Login.name) {
                 LoginScreen( navController )
             }
+            composable(route = MainScreen.RegistrationScreen.name) {
+                RegistrationScreen( navController )
+            }
             composable(route = MainScreen.Home.name) {
                 HomePage( navController )
             }
@@ -101,7 +99,7 @@ fun MainLogin(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainHomeScreen(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController
 ){
     Scaffold (
         bottomBar = {

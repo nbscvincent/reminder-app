@@ -30,6 +30,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -49,7 +50,7 @@ import com.nbscollege_jenjosh.schdulix.ui.theme.SchdulixTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen( navController:NavController ) {
+fun LoginScreen( navController: NavController ) {
     var email by remember { mutableStateOf("") }
     val password by remember { mutableStateOf("") }
     val isChecked = remember { mutableStateOf(true) }
@@ -102,6 +103,14 @@ fun LoginScreen( navController:NavController ) {
                             fontSize = 15.sp,
                             color = Color.Red,
                         )
+                        TextButton(onClick = { navController.navigate(MainScreen.RegistrationScreen.name) }) {
+                            Text(
+                                text = "Sign Up",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp,
+                                color = Color.Red,
+                            )
+                        }
                     }
                 }
             }
@@ -193,3 +202,5 @@ fun LoginScreen( navController:NavController ) {
         }
     }
 }
+
+data class LoginRequest( val username: String, val password: String )

@@ -37,7 +37,7 @@ fun SplashScreen(
     screenViewModel.runSplashScreen()
 
     if (!state.value){
-        navController.navigate(MainScreen.Login.name)
+        navController.navigate(MainScreen.CheckLogin.name)
     }else {
         Column(
             modifier = Modifier

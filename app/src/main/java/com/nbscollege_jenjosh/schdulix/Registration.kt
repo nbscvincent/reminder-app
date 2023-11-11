@@ -147,7 +147,8 @@ fun RegistrationScreen( navController: NavController ) {
             )
             Spacer(modifier = Modifier.height(15.dp))
             Button(
-                onClick = { },
+                onClick = {
+                        print("usercreated")},
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp),
@@ -165,4 +166,11 @@ fun RegistrationScreen( navController: NavController ) {
             }
         }
     }
+}
+fun Register(username: String, password: String, firstName: String, lastName: String) {
+    val user = UserProfile(username, password, firstName, lastName)
+    print("usercreated $user")
+}
+data class UserProfile(val username: String, val password: String, val firstName: String, val lastName: String) {
+
 }

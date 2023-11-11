@@ -24,14 +24,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val screenViewModel: ScreenViewModel by viewModels();
-        /*screenViewModel.runSplashScreen()
-
-
-        installSplashScreen().apply {
-            setKeepOnScreenCondition {
-                screenViewModel.loading.value
-            }
-        }*/
 
         setContent {
             SchdulixTheme {
