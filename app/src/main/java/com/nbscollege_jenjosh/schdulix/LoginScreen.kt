@@ -15,9 +15,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -25,6 +30,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -36,15 +42,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.nbscollege_jenjosh.schdulix.model.LoginUser
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
 import com.nbscollege_jenjosh.schdulix.ui.theme.SchdulixTheme
 
@@ -52,8 +63,11 @@ import com.nbscollege_jenjosh.schdulix.ui.theme.SchdulixTheme
 @Composable
 fun LoginScreen( navController: NavController ) {
     var email by remember { mutableStateOf("") }
-    val password by remember { mutableStateOf("") }
-    val isChecked = remember { mutableStateOf(true) }
+    var password by remember { mutableStateOf("") }
+    val isChecked = remember { mutableStateOf(false) }
+    var passwordShow: Boolean by remember {
+        mutableStateOf(false)
+    }
 
     Scaffold(
         bottomBar = {
@@ -71,7 +85,13 @@ fun LoginScreen( navController: NavController ) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Button(
-                        onClick = { navController.navigate(MainScreen.HomePage.name) },
+                        onClick = {
+                          if (LoginUser(email ,password)){
+                              navController.navigate(MainScreen.HomePage.name)
+                          }else{
+
+                          }
+                        },
                         modifier = Modifier
                             .fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(
@@ -89,19 +109,14 @@ fun LoginScreen( navController: NavController ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
                             text = "Don't have account? ",
                             fontWeight = FontWeight.Normal,
                             fontSize = 15.sp,
                             color = Color.Black,
-                        )
-                        Text(
-                            text = "Sign Up",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 15.sp,
-                            color = Color.Red,
                         )
                         TextButton(onClick = { navController.navigate(MainScreen.RegistrationScreen.name) }) {
                             Text(
@@ -153,8 +168,11 @@ fun LoginScreen( navController: NavController ) {
                 onValueChange = { email = it },
                 label = { Text(text = "Enter your email") },
                 colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = Color(0xFF6562DF),
-                    unfocusedBorderColor = Color(0xFF6562DF)),
+                    focusedBorderColor = Color.Black,
+                    unfocusedBorderColor = Color.Black,
+                    focusedLabelColor = Color.Black,
+                    textColor = Color.Black
+                ),
                 trailingIcon = {
                     Icon(imageVector = Icons.Default.Email, contentDescription = "Email")
                 }
@@ -166,14 +184,30 @@ fun LoginScreen( navController: NavController ) {
                     .padding(start = 25.dp, end = 25.dp),
                 value = password,
                 shape = RoundedCornerShape(10.dp),
-                onValueChange = {},
+                onValueChange = { password = it },
                 label = { Text(text = "Password") },
                 colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = Color(0xFF6562DF),
-                    unfocusedBorderColor = Color(0xFF6562DF)),
+                    focusedBorderColor = Color.Black,
+                    unfocusedBorderColor = Color.Black,
+                    focusedLabelColor = Color.Black,
+                    textColor = Color.Black
+                ),
                 trailingIcon = {
-                    Icon(imageVector = Icons.Default.Lock, contentDescription = "Password")
-                }
+                    val image = if (passwordShow)
+                        Icons.Filled.Visibility
+                    else
+                        Icons.Filled.VisibilityOff
+
+                    val description = if (passwordShow) "Hide Password" else "Show Password"
+                    
+                    IconButton(onClick = {
+                        passwordShow = !passwordShow
+                    }) {
+                        Icon(imageVector = image, contentDescription =  description)
+                    }
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                visualTransformation = if (passwordShow) VisualTransformation.None else PasswordVisualTransformation(),
             )
             Row(
                 modifier = Modifier
@@ -202,5 +236,3 @@ fun LoginScreen( navController: NavController ) {
         }
     }
 }
-
-data class LoginRequest( val username: String, val password: String )
