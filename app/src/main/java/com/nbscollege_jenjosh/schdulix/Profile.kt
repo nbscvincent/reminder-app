@@ -88,7 +88,7 @@ fun Profile(
                         .width(180.dp)
                 )
                 IconButton(onClick = {
-                    navController.navigate(MainScreen.Home.name)
+                    navController.navigate(MainScreen.HomePage.name)
                 }) {
                     Icon(
                         modifier = Modifier.size(34.dp),

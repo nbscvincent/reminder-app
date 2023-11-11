@@ -147,7 +147,7 @@ fun MainHomeScreen(
             composable(route = MainScreen.AddSchedule.name) {
                 AddSchedule( navController )
             }
-            composable(route = MainScreen.Home.name) {
+            composable(route = MainScreen.HomePage.name) {
                 HomePage( navController )
             }
             composable(route = MainScreen.Profile.name) {
