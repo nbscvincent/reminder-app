@@ -89,7 +89,7 @@ fun MainLogin(
             composable(route = MainScreen.RegistrationScreen.name) {
                 RegistrationScreen( navController )
             }
-            composable(route = MainScreen.Home.name) {
+            composable(route = MainScreen.HomePage.name) {
                 HomePage( navController )
             }
         }
@@ -135,7 +135,7 @@ fun MainHomeScreen(
         NavHost(
             navController = navController,
             //startDestination = MainScreen.Login.name,
-            startDestination = MainScreen.Home.name,
+            startDestination = MainScreen.HomePage.name,
             modifier = Modifier.padding(it)
         ) {
             composable(route = MainScreen.Login.name) {

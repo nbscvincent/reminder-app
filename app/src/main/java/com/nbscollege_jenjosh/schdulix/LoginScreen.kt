@@ -71,7 +71,7 @@ fun LoginScreen( navController: NavController ) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Button(
-                        onClick = { navController.navigate(MainScreen.Home.name) },
+                        onClick = { navController.navigate(MainScreen.HomePage.name) },
                         modifier = Modifier
                             .fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(
