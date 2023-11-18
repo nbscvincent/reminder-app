@@ -12,11 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,7 +21,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,7 +30,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -42,7 +37,11 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.nbscollege_jenjosh.schdulix.model.UserProfile
+import com.nbscollege_jenjosh.schdulix.model.checkLogin
+import com.nbscollege_jenjosh.schdulix.model.userList
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
+import com.nbscollege_jenjosh.schdulix.screens.registrationAlert
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,6 +50,24 @@ fun RegistrationScreen( navController: NavController ) {
     var password by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var firstName by remember { mutableStateOf("") }
+    var message = remember { mutableStateOf( "" ) }
+    var isSuccess = remember { mutableStateOf( false ) }
+
+    val showDialog = remember { mutableStateOf( false ) }
+    if (showDialog.value){
+        registrationAlert(
+            message = message,
+            showDialog = showDialog.value,
+            isSuccess = isSuccess.value,
+            navController = navController,
+        ) {
+            showDialog.value = false
+            if (isSuccess.value) {
+                navController.navigate(MainScreen.Splash.name)
+            }
+        }
+    }
+
 
     Scaffold (
     ){ innerPadding ->
@@ -148,15 +165,16 @@ fun RegistrationScreen( navController: NavController ) {
             Spacer(modifier = Modifier.height(15.dp))
             Button(
                 onClick = {
+                    // check if user is existing
+                    if (checkLogin(username)){
+                        message.value = "User already exist"
+                        showDialog.value = true
+                    }else {
+                        message.value = "Successfully registered"
+                        showDialog.value = true
+                        isSuccess.value = true
                         Register(username, password, firstName, lastName)
-                    //navController.navigate(MainScreen.Login.name)
-                    /*AlertDialogExample(
-                        onDismissRequest = { /*TODO*/ },
-                        onConfirmation = { /*TODO*/ },
-                        dialogTitle = ,
-                        dialogText = ,
-                        icon =
-                    )*/
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -178,75 +196,9 @@ fun RegistrationScreen( navController: NavController ) {
 }
 fun Register(username: String, password: String, firstName: String, lastName: String) {
     val user = UserProfile(username, password, firstName, lastName)
-    println("usercreated $user")
-}
-data class UserProfile(val username: String, val password: String, val firstName: String, val lastName: String) {
-}
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AlertDialogExample(
-    onDismissRequest: () -> Unit,
-    onConfirmation: () -> Unit,
-    dialogTitle: String,
-    dialogText: String,
-    icon: ImageVector,
-) {
-    AlertDialog(
-        icon = {
-            Icon(icon, contentDescription = "Example Icon")
-        },
-        title = {
-            Text(text = dialogTitle)
-        },
-        text = {
-            Text(text = dialogText)
-        },
-        onDismissRequest = {
-            onDismissRequest()
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    onConfirmation()
-                }
-            ) {
-                Text("Confirm")
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = {
-                    onDismissRequest()
-                }
-            ) {
-                Text("Dismiss")
-            }
-        }
-    )
+    userList.add(user)
 }
 
-@Composable
-fun DialogExamples() {
-    // ...
-    val openAlertDialog = remember { mutableStateOf(false) }
-
-    // ...
-    when {
-        // ...
-        openAlertDialog.value -> {
-            AlertDialogExample(
-                onDismissRequest = { openAlertDialog.value = false },
-                onConfirmation = {
-                    openAlertDialog.value = false
-                    println("Confirmation registered") // Add logic here to handle confirmation.
-                },
-                dialogTitle = "Alert dialog example",
-                dialogText = "This is an example of an alert dialog with buttons.",
-                icon = Icons.Default.Info
-            )
-        }
-    }
-}
 
 
 

@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -65,25 +67,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.nbscollege_jenjosh.schdulix.model.reminderData
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
+import com.nbscollege_jenjosh.schdulix.viewmodel.ScreenViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomePage(
-    navController: NavController
+    navController: NavController,
+    screenViewModel: ScreenViewModel
 ) {
     val navigationState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var selectedItem by rememberSaveable {
         mutableStateOf(0)
     }
-
-   /* val items = listOf(
-        DrawerItem(
-            title = "Home",
-
-        )
-    )*/
     
     Scaffold (
         topBar = {
@@ -109,7 +107,10 @@ fun HomePage(
                             modifier = Modifier.size(128.dp)
                         )
                     }
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = {
+                        screenViewModel.unsetLogin()
+                        navController.navigate(MainScreen.Splash.name)
+                    }) {
                         Icon(
                             imageVector = Icons.Filled.Close,
                             contentDescription = "Logout",
@@ -141,34 +142,6 @@ fun HomePage(
                     .padding(start = 25.dp, end = 25.dp)
             )
             Spacer(modifier = Modifier.height(15.dp))
-            LazyColumn(
-                state = rememberLazyListState(),
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(start = 25.dp, end = 25.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ){
-                items(5) { index ->
-                    Card(
-                        modifier = Modifier
-                            .padding(top = 10.dp, bottom = 10.dp)
-                            .fillMaxWidth(),
-                            colors = CardDefaults.cardColors(
-                                containerColor = Color(0xFF6562DF)
-                            )
-
-                    ){
-                        Text(
-                            text = "Schdulix: $index",
-                            modifier = Modifier
-                                .padding(16.dp),
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(15.dp))
             Button(
                 onClick = {
                     navController.navigate(MainScreen.AddSchedule.name)
@@ -188,6 +161,7 @@ fun HomePage(
                     color = Color.White,
                 )
             }
+            Spacer(modifier = Modifier.height(200.dp))
         }
     }
 }

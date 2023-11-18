@@ -53,10 +53,11 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ForgotPassword(modifier: Modifier = Modifier) {
+fun ForgotPassword(navController: NavController) {
     var email by remember { mutableStateOf("") }
 
     Scaffold(

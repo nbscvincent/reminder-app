@@ -54,13 +54,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.nbscollege_jenjosh.schdulix.model.userList
+import com.nbscollege_jenjosh.schdulix.model.usernameIndex
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
+import com.nbscollege_jenjosh.schdulix.viewmodel.ScreenViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Profile(
-    navController: NavController
+    navController: NavController,
+    screenViewModel: ScreenViewModel
 ) {
+
     Scaffold(
     ) { innerPadding ->
         Column(
@@ -126,7 +131,7 @@ fun Profile(
                         .padding(end = 25.dp)
                 )
                 Text(
-                    text = "Sample Username",
+                    text = userList[usernameIndex].username,
                     fontWeight = FontWeight.Normal,
                     fontSize = 15.sp,
                     color = Color(0xFF6562DF),
@@ -151,7 +156,7 @@ fun Profile(
                         .padding(end = 25.dp)
                 )
                 Text(
-                    text = "Sample First Name",
+                    text = userList[usernameIndex].firstName,
                     fontWeight = FontWeight.Normal,
                     fontSize = 15.sp,
                     color = Color(0xFF6562DF),
@@ -176,7 +181,7 @@ fun Profile(
                         .padding(end = 25.dp)
                 )
                 Text(
-                    text = "Sample Last Name",
+                    text = userList[usernameIndex].lastName,
                     fontWeight = FontWeight.Normal,
                     fontSize = 15.sp,
                     color = Color(0xFF6562DF),
@@ -186,7 +191,10 @@ fun Profile(
             }
             Spacer(modifier = Modifier.height(15.dp))
             Button(
-                onClick = { },
+                onClick = {
+                    screenViewModel.unsetLogin()
+                    navController.navigate(MainScreen.Splash.name)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp),

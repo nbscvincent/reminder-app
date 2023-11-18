@@ -25,6 +25,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.nbscollege_jenjosh.schdulix.AddSchedule
+import com.nbscollege_jenjosh.schdulix.EditSchedule
+import com.nbscollege_jenjosh.schdulix.ForgotPassword
 import com.nbscollege_jenjosh.schdulix.HomePage
 import com.nbscollege_jenjosh.schdulix.LoginScreen
 import com.nbscollege_jenjosh.schdulix.Profile
@@ -51,7 +53,7 @@ fun SchdulixApp (
                 SplashScreen( navController, screenViewModel )
             }
             composable(route = MainScreen.CheckLogin.name) {
-                CheckLogin( )
+                CheckLogin( screenViewModel )
             }
         }
     }
@@ -59,21 +61,22 @@ fun SchdulixApp (
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CheckLogin( ){
+fun CheckLogin( screenViewModel: ScreenViewModel ){
     val navController: NavHostController = rememberNavController()
-    var isLogin = false;
+    var isLogin = screenViewModel.checkLogin()
 
-    if (isLogin == false){
-        MainLogin(navController)
+    if (!isLogin){
+        MainLogin(navController, screenViewModel)
     }else{
-        MainHomeScreen(navController)
+        MainHomeScreen(navController, screenViewModel)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainLogin(
-    navController: NavHostController
+    navController: NavHostController,
+    screenViewModel: ScreenViewModel
 ){
     Scaffold {
         Column(modifier = Modifier.padding(it)) {
@@ -84,13 +87,22 @@ fun MainLogin(
             modifier = Modifier.padding(it)
         ) {
             composable(route = MainScreen.Login.name) {
-                LoginScreen( navController )
+                LoginScreen( navController, screenViewModel )
             }
             composable(route = MainScreen.RegistrationScreen.name) {
                 RegistrationScreen( navController )
             }
             composable(route = MainScreen.HomePage.name) {
-                HomePage( navController )
+                HomePage( navController, screenViewModel )
+            }
+            composable(route = MainScreen.CheckLogin.name) {
+                CheckLogin( screenViewModel )
+            }
+            composable(route = MainScreen.Splash.name) {
+                SplashScreen( navController, screenViewModel )
+            }
+            composable(route = MainScreen.Forgot.name) {
+                ForgotPassword( navController )
             }
         }
     }
@@ -99,36 +111,11 @@ fun MainLogin(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainHomeScreen(
-    navController: NavHostController
+    navController: NavHostController,
+    screenViewModel: ScreenViewModel
 ){
     Scaffold (
-        bottomBar = {
-            BottomAppBar (
-
-            ){
-                IconButton(onClick = {
-                    navController.navigate(MainScreen.Profile.name)
-                }) {
-                    Icon(
-                        imageVector = Icons.Filled.Person,
-                        contentDescription = "",
-                        tint = Color(0xFF6562DF),
-                        modifier = Modifier.size(128.dp)
-                    )
-                }
-                IconButton(onClick = {
-                    navController.navigate(MainScreen.AddSchedule.name)
-                }) {
-                    Icon(
-                        imageVector = Icons.Filled.Close,
-                        contentDescription = "Logout",
-                        tint = Color(0xFF6562DF),
-                        modifier = Modifier.size(128.dp)
-                    )
-                }
-            }
-
-        }
+        bottomBar = { }
     ){
         Column(modifier = Modifier.padding(it)) {
         }
@@ -139,7 +126,7 @@ fun MainHomeScreen(
             modifier = Modifier.padding(it)
         ) {
             composable(route = MainScreen.Login.name) {
-                LoginScreen( navController )
+                LoginScreen( navController, screenViewModel )
             }
             composable(route = MainScreen.RegistrationScreen.name) {
                 RegistrationScreen( navController )
@@ -148,10 +135,23 @@ fun MainHomeScreen(
                 AddSchedule( navController )
             }
             composable(route = MainScreen.HomePage.name) {
-                HomePage( navController )
+                HomePage( navController, screenViewModel )
             }
             composable(route = MainScreen.Profile.name) {
-                Profile( navController )
+                Profile( navController, screenViewModel )
+            }
+            composable(route = MainScreen.CheckLogin.name) {
+                CheckLogin( screenViewModel )
+            }
+            composable(route = MainScreen.Splash.name) {
+                SplashScreen( navController, screenViewModel )
+            }
+            composable("EditSchedule/{bid}") { navBackStackEntry ->
+                val bid = navBackStackEntry.arguments?.getString("bid")
+
+                bid?.let {
+                    EditSchedule(navController = navController, index = bid.toInt())
+                }
             }
         }
     }

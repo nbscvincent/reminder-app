@@ -57,16 +57,25 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.nbscollege_jenjosh.schdulix.model.LoginUser
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
+import com.nbscollege_jenjosh.schdulix.screens.loginAlert
 import com.nbscollege_jenjosh.schdulix.ui.theme.SchdulixTheme
+import com.nbscollege_jenjosh.schdulix.viewmodel.ScreenViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen( navController: NavController ) {
+fun LoginScreen(
+    navController: NavController,
+    screenViewModel: ScreenViewModel
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val isChecked = remember { mutableStateOf(false) }
     var passwordShow: Boolean by remember {
         mutableStateOf(false)
+    }
+    val openDialog = remember { mutableStateOf(false) }
+    if (openDialog.value){
+        loginAlert(openDialog.value) { openDialog.value = false }
     }
 
     Scaffold(
@@ -87,9 +96,10 @@ fun LoginScreen( navController: NavController ) {
                     Button(
                         onClick = {
                           if (LoginUser(email ,password)){
-                              navController.navigate(MainScreen.HomePage.name)
+                              screenViewModel.setLogin()
+                              navController.navigate(MainScreen.Splash.name)
                           }else{
-
+                              openDialog.value = true
                           }
                         },
                         modifier = Modifier
@@ -228,10 +238,12 @@ fun LoginScreen( navController: NavController ) {
                         color = Color.Black
                     )
                 }
-                Text(
-                    color = Color.Red,
-                    text = "Forgot password?"
-                )
+                TextButton(onClick = { navController.navigate(MainScreen.Forgot.name) }) {
+                    Text(
+                        color = Color.Red,
+                        text = "Forgot password?"
+                    )
+                }
             }
         }
     }

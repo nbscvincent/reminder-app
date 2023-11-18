@@ -28,7 +28,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material.icons.filled.Timelapse
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -63,17 +62,14 @@ import com.nbscollege_jenjosh.schdulix.model.reminderData
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
 import java.util.Calendar
 
-
-data class TimeSchedule (var indexTime: Int = 0, var time: String = "" );
-
 @SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddSchedule( navController: NavController ) {
-    var title by remember { mutableStateOf("") }
+fun EditSchedule( navController: NavController, index: Int) {
+    var title by remember { mutableStateOf(reminderData[index].title) }
     var time by remember { mutableStateOf("") }
-    var startDate by remember { mutableStateOf("") }
-    var endDate by remember { mutableStateOf("") }
+    var startDate by remember { mutableStateOf(reminderData[index].startDate) }
+    var endDate by remember { mutableStateOf(reminderData[index].endDate) }
 
     val mContext = LocalContext.current
     val mDate = remember { mutableStateOf("") }
@@ -103,8 +99,8 @@ fun AddSchedule( navController: NavController ) {
         }, mYear, mMonth, mDay
     )
 
-    startDate = "Start Date"
-    endDate = "End Date"
+    startDate = "$startDate"
+    endDate = "$endDate"
     time = "Time"
 
     val state = rememberScrollState()
@@ -124,10 +120,9 @@ fun AddSchedule( navController: NavController ) {
             hourStr = mHour.toString()
             minuteStr = mMinute.toString()
 
-            //schedList[idfyState] = "${hourStr.padStart(2,'0')}:${minuteStr.padStart(2,'0')}"
+            schedList[idfyState] = "${hourStr.padStart(2,'0')}:${minuteStr.padStart(2,'0')}"
         }, mHour, mMinute, false
     )
-    var stringLabel = "Time";
 
     Scaffold (
     ) { innerPadding ->
@@ -156,7 +151,7 @@ fun AddSchedule( navController: NavController ) {
                     modifier = Modifier
                         .padding(start = 25.dp, end = 25.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF1E1D6D)
+                        containerColor = Color(0xFF6562DF)
                     ),
                     shape = RoundedCornerShape(5.dp),
                 ) {
@@ -169,18 +164,18 @@ fun AddSchedule( navController: NavController ) {
                 }
                 Button(
                     onClick = {
-                        reminderData.add( ReminderModel (title, startDate, endDate) )
+                        reminderData.set(index, ReminderModel(title, startDate, endDate))
                         navController.navigate(MainScreen.HomePage.name)
                     },
                     modifier = Modifier
                         .padding(start = 25.dp, end = 25.dp,),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF1E1D6D)
+                        containerColor = Color(0xFF6562DF)
                     ),
                     shape = RoundedCornerShape(5.dp),
                 ) {
                     Text(
-                        text = "Save",
+                        text = "Update",
                         fontWeight = FontWeight.Normal,
                         fontSize = 15.sp,
                         color = Color.White,
@@ -189,7 +184,7 @@ fun AddSchedule( navController: NavController ) {
             }
             Spacer(modifier = Modifier.height(15.dp))
             Text(
-                text = "Add Schedule",
+                text = "Edit Schedule",
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp,
                 color = Color(0xFF6562DF),
@@ -254,7 +249,7 @@ fun AddSchedule( navController: NavController ) {
                 verticalAlignment = Alignment.CenterVertically,
             ){
                 Text(
-                    text = "End   ",
+                    text = "End  ",
                     fontWeight = FontWeight.Normal,
                     fontSize = 15.sp,
                     color = Color(0xFF6562DF),
@@ -284,59 +279,7 @@ fun AddSchedule( navController: NavController ) {
                 }
             }
             Spacer(modifier = Modifier.height(15.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 25.dp, end = 25.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Button(
-                    onClick = {
-                        mTimePickerDialog.show()
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 10.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
-                    ),
-                    border = BorderStroke(1.dp, Color(0xFF858585)),
-                    shape = RoundedCornerShape(5.dp),
-                ) {
-                    Text(
-                        text = stringLabel,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 15.sp,
-                        color = Color.Black,
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically)
-                    )
-                    Icon(imageVector = Icons.Default.Timelapse, contentDescription = "Time")
-                }
-                Button(
-                    onClick = {
-                        timeCount++
-                        schedList.add(inputvalue.value.text)
-                    },
-                    modifier = Modifier
-                        .padding(start = 25.dp, end = 25.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF1E1D6D)
-                    ),
-                    shape = RoundedCornerShape(5.dp),
-                ) {
-                    Text(
-                        text = "Add Time",
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 15.sp,
-                        color = Color.White,
-                    )
-                }
-            }
 
-
-/*
             schedList.forEachIndexed { index , setting ->
                 var stringLabel = "";
                 stringLabel = setting
@@ -397,7 +340,29 @@ fun AddSchedule( navController: NavController ) {
                     }
                 }
             }
-            */
+
+            Button(
+                onClick = {
+                    timeCount++
+
+                    schedList.add(inputvalue.value.text)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF1E1D6D)
+                ),
+                shape = RoundedCornerShape(5.dp),
+            ) {
+                Text(
+                    text = "Add Time",
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 15.sp,
+                    color = Color.White,
+                )
+            }
+            Spacer(modifier = Modifier.height(15.dp))
         }
     }
 }
