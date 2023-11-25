@@ -14,10 +14,13 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -34,6 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -52,6 +56,7 @@ fun RegistrationScreen( navController: NavController ) {
     var firstName by remember { mutableStateOf("") }
     var message = remember { mutableStateOf( "" ) }
     var isSuccess = remember { mutableStateOf( false ) }
+    var passwordShow: Boolean by remember { mutableStateOf(false) }
 
     val showDialog = remember { mutableStateOf( false ) }
     if (showDialog.value){
@@ -103,6 +108,7 @@ fun RegistrationScreen( navController: NavController ) {
                     Icon(imageVector = Icons.Default.Person, contentDescription = "Username")
                 },
                 placeholder = { Text(text = "Username") },
+                label = { Text(text = "Username") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp),
@@ -115,10 +121,11 @@ fun RegistrationScreen( navController: NavController ) {
                 value = password,
                 onValueChange = { password = it },
                 shape = RoundedCornerShape(10.dp),
-                trailingIcon = {
+                /*trailingIcon = {
                     Icon(imageVector = Icons.Default.Lock, contentDescription = "Password")
-                },
+                },*/
                 placeholder = { Text(text = "Strong Password") },
+                label = { Text(text = "Strong Password") },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password
                 ),
@@ -128,7 +135,24 @@ fun RegistrationScreen( navController: NavController ) {
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     textColor = Color.Black
                 ),
-                visualTransformation = PasswordVisualTransformation()
+                // visualTransformation = PasswordVisualTransformation()
+                trailingIcon = {
+                    val image = if (passwordShow)
+                        Icons.Filled.Visibility
+                    else
+                        Icons.Filled.VisibilityOff
+
+                    val description = if (passwordShow) "Hide Password" else "Show Password"
+
+                    IconButton(onClick = {
+                        passwordShow = !passwordShow
+                    }) {
+                        Icon(imageVector = image, contentDescription =  description)
+                    }
+                },
+                singleLine = false,
+                visualTransformation = if (passwordShow) VisualTransformation.None else PasswordVisualTransformation(),
+
             )
             Spacer(modifier = Modifier.height(20.dp))
             OutlinedTextField(
@@ -139,6 +163,7 @@ fun RegistrationScreen( navController: NavController ) {
                     Icon(imageVector = Icons.Default.Person, contentDescription = "First Name")
                 },
                 placeholder = { Text(text = "First Name") },
+                label = { Text(text = "First Name") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp),
@@ -155,6 +180,7 @@ fun RegistrationScreen( navController: NavController ) {
                     Icon(imageVector = Icons.Default.Person, contentDescription = "Last Name")
                 },
                 placeholder = { Text(text = "Last Name") },
+                label = { Text(text = "Last Name") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp),

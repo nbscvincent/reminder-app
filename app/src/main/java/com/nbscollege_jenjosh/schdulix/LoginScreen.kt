@@ -70,9 +70,7 @@ fun LoginScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val isChecked = remember { mutableStateOf(false) }
-    var passwordShow: Boolean by remember {
-        mutableStateOf(false)
-    }
+    var passwordShow: Boolean by remember { mutableStateOf(false) }
     val openDialog = remember { mutableStateOf(false) }
     if (openDialog.value){
         loginAlert(openDialog.value) { openDialog.value = false }
