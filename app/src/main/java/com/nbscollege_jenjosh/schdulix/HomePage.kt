@@ -24,7 +24,9 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Menu
@@ -34,8 +36,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -60,6 +66,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -68,54 +75,61 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.nbscollege_jenjosh.schdulix.model.reminderData
+import com.nbscollege_jenjosh.schdulix.model.timeData
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
 import com.nbscollege_jenjosh.schdulix.viewmodel.ScreenViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomePage(
     navController: NavController,
-    screenViewModel: ScreenViewModel
+    drawerState: DrawerState
 ) {
-    val navigationState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    var selectedItem by rememberSaveable {
-        mutableStateOf(0)
-    }
     
     Scaffold (
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = {
                     Image(
                         painter = painterResource(id = R.drawable.schdulix_logo),
                         contentDescription = "Schdulix",
                         modifier = Modifier
-                            .height(50.dp)
-                            .width(180.dp)
+                            .height(40.dp)
+                            .width(150.dp)
                     )
                 },
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.White),
-                actions = {
-                    IconButton(onClick = {
-                        navController.navigate(MainScreen.Profile.name)
-                    }) {
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            scope.launch {
+                                drawerState.apply {
+                                    if (isClosed) open() else close()
+                                }
+                            }
+                        }
+                    ) {
                         Icon(
-                            imageVector = Icons.Filled.Person,
-                            contentDescription = "",
+                            imageVector = Icons.Filled.Menu,
+                            contentDescription = "Menu",
                             tint = Color(0xFF6562DF),
-                            modifier = Modifier.size(128.dp)
+                            modifier = Modifier.size(30.dp)
                         )
                     }
-                    IconButton(onClick = {
-                        screenViewModel.unsetLogin()
-                        navController.navigate(MainScreen.Splash.name)
-                    }) {
+                },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            navController.navigate(MainScreen.Profile.name)
+                        }
+                    ) {
                         Icon(
-                            imageVector = Icons.Filled.Close,
-                            contentDescription = "Logout",
+                            imageVector = Icons.Filled.Person,
+                            contentDescription = "Profile",
                             tint = Color(0xFF6562DF),
-                            modifier = Modifier.size(128.dp)
+                            modifier = Modifier.size(30.dp)
                         )
                     }
                 }
@@ -142,33 +156,93 @@ fun HomePage(
                     .padding(start = 25.dp, end = 25.dp)
             )
             Spacer(modifier = Modifier.height(15.dp))
+            LazyColumn {
+                itemsIndexed(reminderData){index, data->
+                    ElevatedCard(
+                        onClick = {
+                            navController.navigate("EditSchedule/$index")
+                        },
+                        elevation = CardDefaults.cardElevation(
+                            defaultElevation = 6.dp
+                        ),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.White,
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 25.dp, end = 25.dp, top = 1.dp, bottom = 5.dp),
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 25.dp, end = 25.dp, top = 10.dp, bottom = 10.dp),
+                        ) {
+                            Row (
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text(
+                                    text = data.title,
+                                    color = Color.Black,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                IconButton(
+                                    onClick = {
+                                        reminderData.removeAt(index)
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Delete,
+                                        contentDescription = "Delete",
+                                        tint = Color.Black
+                                    )
+                                }
+                            }
+                            Text(
+                                text = data.startDate,
+                                color = Color.Black
+                            )
+                            Text(
+                                text = data.endDate,
+                                color = Color.Black
+                            )
+                        }
+                    }
+
+                }
+            }
+            Spacer(modifier = Modifier.height(15.dp))
             Button(
                 onClick = {
                     navController.navigate(MainScreen.AddSchedule.name)
                 },
                 modifier = Modifier
-                    .fillMaxWidth()
                     .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF1E1D6D)
+                    containerColor = Color(0xFF6562DF)
                 ),
-                shape = RoundedCornerShape(5.dp),
+                shape = RoundedCornerShape(20.dp),
             ) {
+                Icon(imageVector = Icons.Filled.Add, contentDescription = "Add", tint = Color.White)
+                Spacer(modifier = Modifier.width(20.dp))
                 Text(
-                    text = "Add Reminder",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
+                    text = "Add New",
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 15.sp,
                     color = Color.White,
+                    modifier = Modifier
+                        .padding(start = 0.dp, end = 8.dp, top = 10.dp, bottom = 10.dp),
                 )
             }
             Spacer(modifier = Modifier.height(200.dp))
+            /*ExtendedFloatingActionButton(
+                text = { Text(text = "Add New") },
+                icon = { Icon(imageVector = Icons.Filled.Add, contentDescription = "Add",) },
+                onClick = { navController.navigate(MainScreen.AddSchedule.name) },
+                containerColor = Color(0xFF6562DF)
+            )*/
         }
     }
 }
-
-data class DrawerItem(
-    val title: String,
-    val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector,
-    val badgeCount: Int? = null
-)

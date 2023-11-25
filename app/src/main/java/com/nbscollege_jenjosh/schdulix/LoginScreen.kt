@@ -185,7 +185,8 @@ fun LoginScreen(
                 ),
                 trailingIcon = {
                     Icon(imageVector = Icons.Default.Email, contentDescription = "Email")
-                }
+                },
+                singleLine = true,
             )
             Spacer(modifier = Modifier.height(15.dp))
             OutlinedTextField(
@@ -216,6 +217,7 @@ fun LoginScreen(
                         Icon(imageVector = image, contentDescription =  description)
                     }
                 },
+                singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 visualTransformation = if (passwordShow) VisualTransformation.None else PasswordVisualTransformation(),
             )

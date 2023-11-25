@@ -4,10 +4,8 @@ import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.widget.DatePicker
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,29 +15,34 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -47,32 +50,31 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.nbscollege_jenjosh.schdulix.model.AddTimeModel
 import com.nbscollege_jenjosh.schdulix.model.ReminderModel
 import com.nbscollege_jenjosh.schdulix.model.reminderData
+import com.nbscollege_jenjosh.schdulix.model.timeData
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
 import java.util.Calendar
+
+
 
 @SuppressLint("UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditSchedule( navController: NavController, index: Int) {
+fun EditSchedule( navController: NavController, index: Int ) {
     var title by remember { mutableStateOf(reminderData[index].title) }
-    var time by remember { mutableStateOf("") }
     var startDate by remember { mutableStateOf(reminderData[index].startDate) }
     var endDate by remember { mutableStateOf(reminderData[index].endDate) }
+    var stringLabel by remember { mutableStateOf("") }
+    timeData.addAll(reminderData[index].timeList)
+
 
     val mContext = LocalContext.current
-    val mDate = remember { mutableStateOf("") }
 
     val mYear: Int
     val mMonth: Int
@@ -99,18 +101,8 @@ fun EditSchedule( navController: NavController, index: Int) {
         }, mYear, mMonth, mDay
     )
 
-    startDate = "$startDate"
-    endDate = "$endDate"
-    time = "Time"
-
     val state = rememberScrollState()
     LaunchedEffect(Unit) { state.animateScrollTo(100) }
-
-    var timeCount by remember { mutableStateOf (0) }
-
-    var idfyState = 0
-    val schedList = remember { mutableStateListOf<String>() }
-    val inputvalue = remember { mutableStateOf( TextFieldValue() ) }
 
     var hourStr = ""
     var minuteStr = ""
@@ -120,249 +112,245 @@ fun EditSchedule( navController: NavController, index: Int) {
             hourStr = mHour.toString()
             minuteStr = mMinute.toString()
 
-            schedList[idfyState] = "${hourStr.padStart(2,'0')}:${minuteStr.padStart(2,'0')}"
+            stringLabel = "${hourStr.padStart(2,'0')}:${minuteStr.padStart(2,'0')}"
         }, mHour, mMinute, false
     )
 
     Scaffold (
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = "Update Schedule",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = Color(0xFF6562DF),
+                    )
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            navController.navigate(MainScreen.HomePage.name)
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color(0xFF6562DF),
+                            modifier = Modifier.size(30.dp)
+                        )
+                    }
+                },
+                actions = {
+                    Button(
+                        onClick = {
+                            reminderData.add( ReminderModel (title, startDate, endDate, timeData) )
+                            timeData.clear()
+                            navController.navigate(MainScreen.HomePage.name)
+                        },
+                        colors = ButtonDefaults.buttonColors( containerColor = Color.White ),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Save,
+                            contentDescription = "Save",
+                            tint = Color(0xFF6562DF),
+                            modifier = Modifier.size(30.dp)
+                        )
+                        Spacer(modifier = Modifier.width(5.dp))
+                        Text(
+                            text = "Save",
+                            color = Color(0xFF6562DF),
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.White),
+            )
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
                 .fillMaxWidth()
-                .background(Color.White)
-                .verticalScroll(state),
+                .background(Color.White),
             verticalArrangement = Arrangement.spacedBy(0.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
 
-        ) {
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 25.dp, end = 25.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ){
-                Button(
-                    onClick = {
-                        navController.navigate(MainScreen.HomePage.name)
-                    },
-                    modifier = Modifier
-                        .padding(start = 25.dp, end = 25.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF6562DF)
-                    ),
-                    shape = RoundedCornerShape(5.dp),
-                ) {
-                    Text(
-                        text = "Cancel",
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 15.sp,
-                        color = Color.White,
-                    )
-                }
-                Button(
-                    onClick = {
-                        reminderData.set(index, ReminderModel(title, startDate, endDate))
-                        navController.navigate(MainScreen.HomePage.name)
-                    },
-                    modifier = Modifier
-                        .padding(start = 25.dp, end = 25.dp,),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF6562DF)
-                    ),
-                    shape = RoundedCornerShape(5.dp),
-                ) {
-                    Text(
-                        text = "Update",
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 15.sp,
-                        color = Color.White,
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(15.dp))
-            Text(
-                text = "Edit Schedule",
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp,
-                color = Color(0xFF6562DF),
-            )
+            ) {
             Spacer(modifier = Modifier.height(15.dp))
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
                 shape = RoundedCornerShape(10.dp),
                 placeholder = { Text(text = "Title") },
+                label = { Text(text = "Title") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp),
                 colors = TextFieldDefaults.outlinedTextFieldColors(
-                    textColor = Color.Black
+                    textColor = Color.Black,
+                    focusedBorderColor = Color.Black,
+                    unfocusedBorderColor = Color.Black,
+                    focusedLabelColor = Color.Black,
                 )
             )
             Spacer(modifier = Modifier.height(15.dp))
-            Row (
+            OutlinedTextField(
+                value = startDate,
+                onValueChange = { startDate = it },
+                shape = RoundedCornerShape(10.dp),
+                placeholder = { Text(text = "Start Date") },
+                label = { Text(text = "Start Date") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp)
+                    .clickable { mDateStartDate.show() },
+                enabled = false,
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    textColor = Color.Black,
+                    focusedBorderColor = Color.Black,
+                    unfocusedBorderColor = Color.Black,
+                    focusedLabelColor = Color.Black,
+
+                    disabledTextColor = Color.Black,
+                    disabledBorderColor = MaterialTheme.colorScheme.outline,
+                    disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                ),
+                trailingIcon = {
+                    Icon(imageVector = Icons.Filled.DateRange, contentDescription = "Start Date")
+                }
+            )
+            Spacer(modifier = Modifier.height(15.dp))
+            OutlinedTextField(
+                value = endDate,
+                onValueChange = { endDate = it },
+                shape = RoundedCornerShape(10.dp),
+                placeholder = { Text(text = "End Date") },
+                label = { Text(text = "End Date") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp)
+                    .clickable { mDateEndDate.show() },
+                enabled = false,
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    textColor = Color.Black,
+                    focusedBorderColor = Color.Black,
+                    unfocusedBorderColor = Color.Black,
+                    focusedLabelColor = Color.Black,
+
+                    disabledTextColor = Color.Black,
+                    disabledBorderColor = MaterialTheme.colorScheme.outline,
+                    disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                ),
+                trailingIcon = {
+                    Icon(imageVector = Icons.Filled.DateRange, contentDescription = "Start Date")
+                }
+            )
+            Spacer(modifier = Modifier.height(15.dp))
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 25.dp, end = 25.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
-            ){
-                Text(
-                    text = "Start",
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 15.sp,
-                    color = Color(0xFF6562DF),
-                )
-                Button(
-                    onClick = { mDateStartDate.show() },
+            ) {
+                OutlinedTextField(
+                    value = stringLabel,
+                    onValueChange = { stringLabel = it },
+                    shape = RoundedCornerShape(10.dp),
+                    placeholder = { Text(text = "Time") },
+                    label = { Text(text = "Time") },
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 25.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
-                    ),
-                    border = BorderStroke(1.dp, Color(0xFF858585)),
-                    shape = RoundedCornerShape(5.dp),
-                ) {
-                    Text(
-                        text = startDate,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 15.sp,
-                        color = Color.Black,
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically)
-                            .padding(top = 10.dp, bottom = 10.dp)
-                    )
-                    Spacer(modifier = Modifier.weight(1f))
-                    Icon(imageVector = Icons.Default.DateRange, contentDescription = "End Date")
-                }
-            }
-            Spacer(modifier = Modifier.height(15.dp))
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 25.dp, end = 25.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-            ){
-                Text(
-                    text = "End  ",
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 15.sp,
-                    color = Color(0xFF6562DF),
-                )
-                Button(
-                    onClick = { mDateEndDate.show() },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 25.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
-                    ),
-                    border = BorderStroke(1.dp, Color(0xFF858585)),
-                    shape = RoundedCornerShape(5.dp),
-                ) {
-                    Text(
-                        text = endDate,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 15.sp,
-                        color = Color.Black,
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically)
-                            .padding(top = 10.dp, bottom = 10.dp)
-                    )
-                    Spacer(modifier = Modifier.weight(1f))
-                    Icon(imageVector = Icons.Default.DateRange, contentDescription = "End Date")
-                }
-            }
-            Spacer(modifier = Modifier.height(15.dp))
+                        //.fillMaxWidth()
+                        //.padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp)
+                        .clickable { mTimePickerDialog.show() },
+                    enabled = false,
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        textColor = Color.Black,
+                        focusedBorderColor = Color.Black,
+                        unfocusedBorderColor = Color.Black,
+                        focusedLabelColor = Color.Black,
 
-            schedList.forEachIndexed { index , setting ->
-                var stringLabel = "";
-                stringLabel = setting
-                if (setting == ""){
-                    stringLabel = "Time"
-                }
-                Row (
+                        disabledTextColor = Color.Black,
+                        disabledBorderColor = MaterialTheme.colorScheme.outline,
+                        disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    ),
+                    trailingIcon = {
+                        Icon(imageVector = Icons.Filled.AccessTime, contentDescription = "Time")
+                    }
+                )
+                Button(
+                    onClick = {
+                        if(stringLabel != "") {
+                            timeData.add(AddTimeModel(stringLabel))
+                            stringLabel = "";
+                        }
+                    },
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 10.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
+                        .padding(top = 15.dp, bottom = 15.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF6562DF),
+                    ),
+                    shape = RoundedCornerShape(50),
                 ) {
-                    Button(
-                        onClick = {
-                            timeCount--
-                            schedList.removeAt(index)
-                        },
-                        modifier = Modifier,
-                        colors = ButtonDefaults.buttonColors(
+                    Text(
+                        text = "Add",
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 15.sp,
+                        color = Color.White,
+                    )
+                }
+            }
+            LazyColumn{
+                itemsIndexed(timeData){index, timeList ->
+                    ElevatedCard(
+                        onClick = {  },
+                        elevation = CardDefaults.cardElevation(
+                            defaultElevation = 6.dp
+                        ),
+                        colors = CardDefaults.cardColors(
                             containerColor = Color.White,
                         ),
-                        border = BorderStroke(1.dp, Color.Red),
-                        shape = RoundedCornerShape(200.dp),
-                    ) {
-                        Text(
-                            text = "X",
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 20.sp,
-                            color = Color.Red,
-                        )
-                    }
-                    Button(
-                        onClick = {
-                            mTimePickerDialog.show()
-                            idfyState = index
-                        },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = 10.dp, end = 0.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.White,
-                        ),
-                        border = BorderStroke(1.dp, Color(0xFF858585)),
-                        shape = RoundedCornerShape(5.dp),
+                            .padding(start = 25.dp, end = 25.dp, top = 1.dp, bottom = 5.dp),
                     ) {
-                        Text(
-                            text = stringLabel,
-                            fontWeight = FontWeight.Normal,
-                            fontSize = 15.sp,
-                            color = Color.Black,
+                        Row (
                             modifier = Modifier
-                                .align(Alignment.CenterVertically)
-                                .padding(top = 10.dp, bottom = 10.dp)
-                        )
-                        Spacer(modifier = Modifier.weight(1f))
-                        Icon(imageVector = Icons.Default.DateRange, contentDescription = "End Date")
+                                .fillMaxWidth()
+                                .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 10.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text = timeList.time,
+                                color = Color.Black
+                            )
+                            IconButton(
+                                onClick = {
+                                    timeData.removeAt(index)
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Delete,
+                                    contentDescription = "Delete",
+                                    tint = Color.Black
+                                )
+                            }
+                        }
                     }
+
                 }
             }
-
-            Button(
-                onClick = {
-                    timeCount++
-
-                    schedList.add(inputvalue.value.text)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF1E1D6D)
-                ),
-                shape = RoundedCornerShape(5.dp),
-            ) {
-                Text(
-                    text = "Add Time",
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 15.sp,
-                    color = Color.White,
-                )
-            }
-            Spacer(modifier = Modifier.height(15.dp))
         }
     }
 }
