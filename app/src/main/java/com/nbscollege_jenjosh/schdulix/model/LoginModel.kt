@@ -2,11 +2,18 @@ package com.nbscollege_jenjosh.schdulix.model
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.room.Entity
 import kotlin.system.exitProcess
 
 data class LoginRequest( val username: String, val password: String )
 data class LoginResponse( val username: String, val password: String )
-data class UserProfile(val username: String, val password: String, val firstName: String, val lastName: String)
+@Entity(tableName = "user")
+data class UserProfile(
+    val username: String,
+    val password: String,
+    val firstName: String,
+    val lastName: String
+)
 
 fun LoginUser(username:String, password: String): Boolean{
     return loginAuth(username,password)

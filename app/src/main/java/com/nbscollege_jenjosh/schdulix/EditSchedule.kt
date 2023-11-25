@@ -43,6 +43,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -71,8 +72,6 @@ fun EditSchedule( navController: NavController, index: Int ) {
     var startDate by remember { mutableStateOf(reminderData[index].startDate) }
     var endDate by remember { mutableStateOf(reminderData[index].endDate) }
     var stringLabel by remember { mutableStateOf("") }
-    timeData.addAll(reminderData[index].timeList)
-
 
     val mContext = LocalContext.current
 
@@ -144,8 +143,7 @@ fun EditSchedule( navController: NavController, index: Int ) {
                 actions = {
                     Button(
                         onClick = {
-                            reminderData.add( ReminderModel (title, startDate, endDate, timeData) )
-                            timeData.clear()
+                            reminderData[index] = ReminderModel (title, startDate, endDate, reminderData[index].timeList)
                             navController.navigate(MainScreen.HomePage.name)
                         },
                         colors = ButtonDefaults.buttonColors( containerColor = Color.White ),
@@ -291,7 +289,7 @@ fun EditSchedule( navController: NavController, index: Int ) {
                 Button(
                     onClick = {
                         if(stringLabel != "") {
-                            timeData.add(AddTimeModel(stringLabel))
+                            reminderData[index].timeList.add(AddTimeModel(stringLabel))
                             stringLabel = "";
                         }
                     },
@@ -311,7 +309,7 @@ fun EditSchedule( navController: NavController, index: Int ) {
                 }
             }
             LazyColumn{
-                itemsIndexed(timeData){index, timeList ->
+                itemsIndexed(reminderData[index].timeList){index, timeList ->
                     ElevatedCard(
                         onClick = {  },
                         elevation = CardDefaults.cardElevation(
@@ -337,7 +335,7 @@ fun EditSchedule( navController: NavController, index: Int ) {
                             )
                             IconButton(
                                 onClick = {
-                                    timeData.removeAt(index)
+                                    reminderData[index].timeList.removeAt(index)
                                 }
                             ) {
                                 Icon(
