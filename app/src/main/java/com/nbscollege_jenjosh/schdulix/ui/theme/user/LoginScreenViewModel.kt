@@ -40,7 +40,7 @@ class LoginScreenViewModel(private val usersRepository: UserRepository) : ViewMo
  * Represents Ui State for an User.
  */
 data class UserUiState(
-    val userDetails: UserDetails = UserDetails(),
+    var userDetails: UserDetails = UserDetails(),
     val isEntryValid: Boolean = false
 )
 data class UserDetails(

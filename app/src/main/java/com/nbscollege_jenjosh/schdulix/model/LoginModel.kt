@@ -3,13 +3,14 @@ package com.nbscollege_jenjosh.schdulix.model
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.room.Entity
+import androidx.room.PrimaryKey
 import kotlin.system.exitProcess
 
 data class LoginRequest( val username: String, val password: String )
 data class LoginResponse( val username: String, val password: String )
 @Entity(tableName = "user")
 data class UserProfile(
-    val username: String,
+    @PrimaryKey val username: String,
     val password: String,
     val firstName: String,
     val lastName: String
@@ -20,7 +21,7 @@ fun LoginUser(username:String, password: String): Boolean{
 }
 
 var userList = mutableListOf<UserProfile>(
-    UserProfile("jen","jen","Jen","Default")
+    UserProfile("jen","jen","Jen","Jabillo")
 )
 var usernameIndex = 0
 

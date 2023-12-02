@@ -11,10 +11,10 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface UserProfileDao {
-        @Query("SELECT * from user ORDER BY id ASC")
+        @Query("SELECT * from user ORDER BY username ASC")
         fun getAllUsers(): Flow<List<UserProfile>>
 
-        @Query("SELECT * from user WHERE id = :id")
+        @Query("SELECT * from user WHERE username = :id")
         fun getUsers(id: Int): Flow<UserProfile>
 
         @Insert(onConflict = OnConflictStrategy.REPLACE)

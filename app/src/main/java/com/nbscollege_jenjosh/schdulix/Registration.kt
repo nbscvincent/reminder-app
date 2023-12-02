@@ -1,5 +1,6 @@
 package com.nbscollege_jenjosh.schdulix
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -29,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,16 +42,25 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.nbscollege_jenjosh.schdulix.model.UserProfile
 import com.nbscollege_jenjosh.schdulix.model.checkLogin
 import com.nbscollege_jenjosh.schdulix.model.userList
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
 import com.nbscollege_jenjosh.schdulix.screens.registrationAlert
+import com.nbscollege_jenjosh.schdulix.ui.theme.user.AppViewModelProvider
+import com.nbscollege_jenjosh.schdulix.ui.theme.user.LoginScreenViewModel
+import com.nbscollege_jenjosh.schdulix.ui.theme.user.RegistrationScreenViewModel
+import com.nbscollege_jenjosh.schdulix.ui.theme.user.UserDetails
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegistrationScreen( navController: NavController ) {
+fun RegistrationScreen(
+    navController: NavController,
+    viewModel: RegistrationScreenViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
@@ -57,6 +68,8 @@ fun RegistrationScreen( navController: NavController ) {
     var message = remember { mutableStateOf( "" ) }
     var isSuccess = remember { mutableStateOf( false ) }
     var passwordShow: Boolean by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+
 
     val showDialog = remember { mutableStateOf( false ) }
     if (showDialog.value){
@@ -191,6 +204,15 @@ fun RegistrationScreen( navController: NavController ) {
             Spacer(modifier = Modifier.height(15.dp))
             Button(
                 onClick = {
+                    coroutineScope.launch {
+                        val userUiState = viewModel.userUiState
+                        userUiState.userDetails = UserDetails(username,password,firstName,lastName)
+                        viewModel.saveUser()
+                        Log.i("userUiState", userUiState.userDetails.toString())
+                    }
+                    //navController.navigate(MainRoute.MainScreen.name)
+                },
+                /*onClick = {
                     // check if user is existing
                     if (checkLogin(username)){
                         message.value = "User already exist"
@@ -201,7 +223,7 @@ fun RegistrationScreen( navController: NavController ) {
                         isSuccess.value = true
                         Register(username, password, firstName, lastName)
                     }
-                },
+                },*/
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp),

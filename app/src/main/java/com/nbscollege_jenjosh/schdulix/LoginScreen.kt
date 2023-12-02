@@ -1,6 +1,7 @@
 package com.nbscollege_jenjosh.schdulix
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -42,6 +43,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -54,18 +56,25 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.nbscollege_jenjosh.schdulix.model.LoginUser
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
 import com.nbscollege_jenjosh.schdulix.screens.loginAlert
 import com.nbscollege_jenjosh.schdulix.ui.theme.SchdulixTheme
+import com.nbscollege_jenjosh.schdulix.ui.theme.user.AppViewModelProvider
+import com.nbscollege_jenjosh.schdulix.ui.theme.user.LoginScreenViewModel
+import com.nbscollege_jenjosh.schdulix.ui.theme.user.RegistrationScreenViewModel
+import com.nbscollege_jenjosh.schdulix.ui.theme.user.UserDetails
 import com.nbscollege_jenjosh.schdulix.viewmodel.ScreenViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     navController: NavController,
-    screenViewModel: ScreenViewModel
+    screenViewModel: ScreenViewModel,
+    viewModel: LoginScreenViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -75,6 +84,7 @@ fun LoginScreen(
     if (openDialog.value){
         loginAlert(openDialog.value) { openDialog.value = false }
     }
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         bottomBar = {
@@ -93,12 +103,12 @@ fun LoginScreen(
                 ) {
                     Button(
                         onClick = {
-                          if (LoginUser(email ,password)){
-                              screenViewModel.setLogin()
-                              navController.navigate(MainScreen.Splash.name)
-                          }else{
-                              openDialog.value = true
-                          }
+                            if (LoginUser(email, password)) {
+                                screenViewModel.setLogin()
+                                navController.navigate(MainScreen.Splash.name)
+                            } else {
+                                openDialog.value = true
+                            }
                         },
                         modifier = Modifier
                             .fillMaxWidth(),
@@ -126,7 +136,9 @@ fun LoginScreen(
                             fontSize = 15.sp,
                             color = Color.Black,
                         )
-                        TextButton(onClick = { navController.navigate(MainScreen.RegistrationScreen.name) }) {
+                        TextButton(
+                            onClick = { navController.navigate(MainScreen.RegistrationScreen.name) })
+                        {
                             Text(
                                 text = "Sign Up",
                                 fontWeight = FontWeight.Bold,
