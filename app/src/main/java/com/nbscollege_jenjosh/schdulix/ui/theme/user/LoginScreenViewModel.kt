@@ -25,9 +25,9 @@ class LoginScreenViewModel(private val usersRepository: UserRepository) : ViewMo
     /**
      * Inserts an [User] in the Room database
      */
-    suspend fun saveUser() {
+    suspend fun selectUser(username: String, password: String) {
         if (validateInput()) {
-            usersRepository.insertUser(userUiState.userDetails.toUser())
+            usersRepository.getUserPasswordStream(username, password)
         }
     }
     private fun validateInput(uiState: UserDetails = userUiState.userDetails): Boolean {

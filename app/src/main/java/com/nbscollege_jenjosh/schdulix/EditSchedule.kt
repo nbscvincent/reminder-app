@@ -143,7 +143,7 @@ fun EditSchedule( navController: NavController, index: Int ) {
                 actions = {
                     Button(
                         onClick = {
-                            reminderData[index] = ReminderModel (title, startDate, endDate, reminderData[index].timeList)
+                            //reminderData[index] = ReminderModel (title, startDate, endDate, reminderData[index].timeList)
                             navController.navigate(MainScreen.HomePage.name)
                         },
                         colors = ButtonDefaults.buttonColors( containerColor = Color.White ),
@@ -289,7 +289,7 @@ fun EditSchedule( navController: NavController, index: Int ) {
                 Button(
                     onClick = {
                         if(stringLabel != "") {
-                            reminderData[index].timeList.add(AddTimeModel(stringLabel))
+                            //reminderData[index].timeList.add(AddTimeModel(stringLabel))
                             stringLabel = "";
                         }
                     },
@@ -309,7 +309,7 @@ fun EditSchedule( navController: NavController, index: Int ) {
                 }
             }
             LazyColumn{
-                itemsIndexed(reminderData[index].timeList){index, timeList ->
+                /*itemsIndexed(reminderData[index].timeList){index, timeList ->
                     ElevatedCard(
                         onClick = {  },
                         elevation = CardDefaults.cardElevation(
@@ -346,8 +346,7 @@ fun EditSchedule( navController: NavController, index: Int ) {
                             }
                         }
                     }
-
-                }
+                }*/
             }
         }
     }

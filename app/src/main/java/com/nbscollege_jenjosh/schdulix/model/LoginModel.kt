@@ -8,6 +8,7 @@ import kotlin.system.exitProcess
 
 data class LoginRequest( val username: String, val password: String )
 data class LoginResponse( val username: String, val password: String )
+
 @Entity(tableName = "user")
 data class UserProfile(
     @PrimaryKey val username: String,

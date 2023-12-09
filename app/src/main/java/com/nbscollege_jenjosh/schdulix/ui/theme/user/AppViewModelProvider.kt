@@ -5,6 +5,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.nbscollege_jenjosh.schdulix.Schdulix
+import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ScheduleScreenViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
@@ -14,6 +15,11 @@ object AppViewModelProvider {
             )
             RegistrationScreenViewModel(
                 schdulixApplication().container.userRepository
+            )
+        }
+        initializer {
+            ScheduleScreenViewModel(
+                schdulixApplication().container.timeTmp
             )
         }
     }
