@@ -21,8 +21,10 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
@@ -30,6 +32,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,6 +41,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,14 +58,48 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.nbscollege_jenjosh.schdulix.model.userList
+import com.nbscollege_jenjosh.schdulix.model.usernameIndex
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
+import com.nbscollege_jenjosh.schdulix.viewmodel.ScreenViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Profile(
-    navController: NavController
+    navController: NavController,
+    screenViewModel: ScreenViewModel
 ) {
+
     Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Image(
+                        painter = painterResource(id = R.drawable.schdulix_logo),
+                        contentDescription = "Schdulix",
+                        modifier = Modifier
+                            .height(40.dp)
+                            .width(150.dp)
+                    )
+                },
+                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color.White),
+                actions = {
+                    IconButton(
+                        onClick = {
+                            navController.navigate(MainScreen.HomePage.name)
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Close,
+                            contentDescription = "Close",
+                            tint = Color(0xFF6562DF),
+                            modifier = Modifier.size(30.dp)
+                        )
+                    }
+                }
+            )
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -72,33 +110,6 @@ fun Profile(
             verticalArrangement = Arrangement.spacedBy(0.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(modifier = Modifier.height(15.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.schdulix_logo),
-                    contentDescription = "Schdulix",
-                    modifier = Modifier
-                        .height(50.dp)
-                        .width(180.dp)
-                )
-                IconButton(onClick = {
-                    navController.navigate(MainScreen.HomePage.name)
-                }) {
-                    Icon(
-                        modifier = Modifier.size(34.dp),
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Menu",
-                        tint = Color(0xFF6562DF)
-                    )
-                }
-
-            }
             Spacer(modifier = Modifier.height(15.dp))
             Text(
                 text = "My Profile",
@@ -126,7 +137,7 @@ fun Profile(
                         .padding(end = 25.dp)
                 )
                 Text(
-                    text = "Sample Username",
+                    text = userList[usernameIndex].username,
                     fontWeight = FontWeight.Normal,
                     fontSize = 15.sp,
                     color = Color(0xFF6562DF),
@@ -151,7 +162,7 @@ fun Profile(
                         .padding(end = 25.dp)
                 )
                 Text(
-                    text = "Sample First Name",
+                    text = userList[usernameIndex].firstName,
                     fontWeight = FontWeight.Normal,
                     fontSize = 15.sp,
                     color = Color(0xFF6562DF),
@@ -176,7 +187,7 @@ fun Profile(
                         .padding(end = 25.dp)
                 )
                 Text(
-                    text = "Sample Last Name",
+                    text = userList[usernameIndex].lastName,
                     fontWeight = FontWeight.Normal,
                     fontSize = 15.sp,
                     color = Color(0xFF6562DF),
@@ -186,20 +197,27 @@ fun Profile(
             }
             Spacer(modifier = Modifier.height(15.dp))
             Button(
-                onClick = { },
+                onClick = {
+                    screenViewModel.unsetLogin()
+                    navController.navigate(MainScreen.Splash.name)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF1E1D6D)
+                    containerColor = Color(0xFF6562DF)
                 ),
-                shape = RoundedCornerShape(5.dp),
+                shape = RoundedCornerShape(20.dp),
             ) {
+                Icon(imageVector = Icons.Filled.Logout, contentDescription = "Logout", tint = Color.White)
+                Spacer(modifier = Modifier.width(20.dp))
                 Text(
                     text = "Sign Out",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 15.sp,
                     color = Color.White,
+                    modifier = Modifier
+                        .padding(start = 0.dp, end = 8.dp, top = 10.dp, bottom = 10.dp),
                 )
             }
         }

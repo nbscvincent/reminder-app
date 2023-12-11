@@ -12,8 +12,10 @@ import kotlinx.coroutines.launch
 class ScreenViewModel : ViewModel() {
     private val _loading = MutableStateFlow(true)
     val loading = _loading.asStateFlow()
-
     private val _uiState = MutableStateFlow(ScreenUiState())
+
+    private val _isLogin = MutableStateFlow(false)
+    val isLogin = _isLogin.asStateFlow()
 
     fun runSplashScreen() {
         viewModelScope.launch {
@@ -21,5 +23,15 @@ class ScreenViewModel : ViewModel() {
             delay(2000)
             _loading.value = false
         }
+    }
+
+    fun checkLogin(): Boolean {
+        return _isLogin.value
+    }
+    fun setLogin(){
+        _isLogin.value = true;
+    }
+    fun unsetLogin(){
+        _isLogin.value = false;
     }
 }

@@ -1,32 +1,53 @@
 package com.nbscollege_jenjosh.schdulix.model
 
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import kotlin.system.exitProcess
 
 data class LoginRequest( val username: String, val password: String )
 data class LoginResponse( val username: String, val password: String )
-data class UserData( val username: String, val password: String, val fullName: String )
+
+@Entity(tableName = "user")
+data class UserProfile(
+    @PrimaryKey val username: String,
+    val password: String,
+    val firstName: String,
+    val lastName: String
+)
 
 fun LoginUser(username:String, password: String): Boolean{
-    //val loginReq = LoginRequest(username,password)
     return loginAuth(username,password)
 }
 
+var userList = mutableListOf<UserProfile>(
+    UserProfile("jen","jen","Jen","Jabillo")
+)
+var usernameIndex = 0
+
 fun loginAuth(username:String, password:String): Boolean {
     var result = false
-    val userList = listOf(
-        UserData(username="jen", password= "jen", fullName = "Jenepir"),
-        UserData(username="josh", password= "josh", fullName = "Joseph")
-    )
 
-    println(userList)
-    userList.forEachIndexed lit@ {index, userData ->
-        println("SAMPLELOGIN")
-        println(userData)
-        println("SAMPLELOGINHERE1")
-        println(userList[index].username)
-        println("SAMPLELOGINHERE")
+    userList.forEachIndexed stop@ {index, userData ->
         if (!result) {
             if (userData.username == username && userData.password == password) {
+                usernameIndex = index
+                result = true
+            }
+        }else{
+            return@stop
+        }
+    }
+    return result
+}
+
+fun checkLogin(username:String): Boolean {
+    var result = false
+
+    userList.forEachIndexed lit@ {index, userData ->
+        if (!result) {
+            if (userData.username == username) {
                 result = true
             }
         }else{
