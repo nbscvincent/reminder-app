@@ -113,13 +113,6 @@ fun LoginScreen(
                 ) {
                     Button(
                         onClick = {
-                            /*if (LoginUser(email, password)) {
-                                screenViewModel.setLogin()
-                                navController.navigate(MainScreen.Splash.name)
-                            } else {
-                                openDialog.value = true
-                            }*/
-
                             coroutineScope.launch {
                                 val loginState = viewModel.userUiState
                                 loginState.userDetails = UserDetails(email, password)

@@ -42,7 +42,6 @@ class LoginScreenViewModel(private val usersRepository: UserRepository) : ViewMo
 data class UserUiState(
     var userDetails: UserDetails = UserDetails(),
     val isEntryValid: Boolean = false,
-    //var userResult: UserDetails = UserDetails()
 )
 data class UserDetails(
     val username: String = "",

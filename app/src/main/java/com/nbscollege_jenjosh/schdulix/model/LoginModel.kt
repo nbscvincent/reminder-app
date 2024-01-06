@@ -22,7 +22,7 @@ fun LoginUser(username:String, password: String): Boolean{
 }
 
 var userList = mutableListOf<UserProfile>(
-    UserProfile("jen","jen","Jen","Jabillo")
+    //UserProfile("jen","jen","Jen","Jabillo")
 )
 var usernameIndex = 0
 

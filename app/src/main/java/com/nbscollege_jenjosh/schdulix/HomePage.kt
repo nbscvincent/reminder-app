@@ -55,6 +55,7 @@ import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -73,20 +74,30 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.nbscollege_jenjosh.schdulix.model.reminderData
 import com.nbscollege_jenjosh.schdulix.model.timeData
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
+import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ScheduleScreenViewModel
+import com.nbscollege_jenjosh.schdulix.ui.theme.user.AppViewModelProvider
 import com.nbscollege_jenjosh.schdulix.viewmodel.ScreenViewModel
 import kotlinx.coroutines.launch
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomePage(
     navController: NavController,
-    drawerState: DrawerState
+    drawerState: DrawerState,
+    viewModel: ScheduleScreenViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    val scope = rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope()
+    val homePageState = viewModel.reminderUiState
+
+    coroutineScope.launch{
+        viewModel.getAllSchedule()
+    }
     
     Scaffold (
         topBar = {
@@ -104,7 +115,7 @@ fun HomePage(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            scope.launch {
+                            coroutineScope.launch {
                                 drawerState.apply {
                                     if (isClosed) open() else close()
                                 }
@@ -157,7 +168,7 @@ fun HomePage(
             )
             Spacer(modifier = Modifier.height(15.dp))
             LazyColumn {
-                itemsIndexed(reminderData){index, data->
+                itemsIndexed(homePageState.reminderDetailsList) { index, data ->
                     ElevatedCard(
                         onClick = {
                             navController.navigate("EditSchedule/$index")

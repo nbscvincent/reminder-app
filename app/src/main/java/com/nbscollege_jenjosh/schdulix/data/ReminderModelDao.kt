@@ -13,11 +13,11 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ReminderModelDao {
-    @Query("SELECT * from schedule ORDER BY id ASC")
+    @Query("SELECT * FROM schedule ORDER BY title ASC")
     fun getAllSchedule(): Flow<List<ReminderModel>>
 
-    @Query("SELECT * from schedule WHERE id = :id")
-    fun getSchedule(id: Int): Flow<ReminderModel>
+    @Query("SELECT * from schedule WHERE title = :title")
+    fun getSchedule(title: String): Flow<ReminderModel>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(schedule: ReminderModel)
@@ -28,23 +28,4 @@ interface ReminderModelDao {
     @Delete
     suspend fun delete(schedule: ReminderModel)
 
-
-
-    @Query("SELECT * from time ORDER BY id ASC")
-    fun getAllScheduleDtl(): Flow<List<AddTimeModel>>
-
-    @Query("SELECT * from time WHERE head_id = :id")
-    fun getScheduleDtl(id: Int): Flow<AddTimeModel>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertDtl(time: AddTimeModel)
-
-    @Update
-    suspend fun updateDtl(time: AddTimeModel)
-
-    @Delete
-    suspend fun deleteDtl(time: AddTimeModel)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertDtlTmp(time: AddTimeTmpModel)
 }

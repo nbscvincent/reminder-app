@@ -60,7 +60,8 @@ import com.nbscollege_jenjosh.schdulix.model.TimeTmpModel
 import com.nbscollege_jenjosh.schdulix.model.timeData
 import com.nbscollege_jenjosh.schdulix.model.timeTmpData
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
-import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.AddTimeTmpModeletails
+import com.nbscollege_jenjosh.schdulix.screens.registrationAlert
+import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ReminderDetails
 import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ScheduleScreenViewModel
 import com.nbscollege_jenjosh.schdulix.ui.theme.user.AppViewModelProvider
 import kotlinx.coroutines.launch
@@ -126,6 +127,23 @@ fun AddSchedule(
 
     val coroutineScope = rememberCoroutineScope()
 
+    var message = remember { mutableStateOf( "" ) }
+    var isSuccess = remember { mutableStateOf( false ) }
+    val showDialog = remember { mutableStateOf( false ) }
+    if (showDialog.value){
+        registrationAlert(
+            message = message,
+            showDialog = showDialog.value,
+            isSuccess = isSuccess.value,
+            navController = navController,
+        ) {
+            showDialog.value = false
+            if (isSuccess.value) {
+                navController.navigate(MainScreen.Splash.name)
+            }
+        }
+    }
+
     Scaffold (
         topBar = {
             CenterAlignedTopAppBar(
@@ -153,13 +171,30 @@ fun AddSchedule(
                 },
                 actions = {
                     Button(
-                        /*onClick = {
-                            reminderData.add( ReminderModel (title, startDate, endDate, timeData) )
-                            timeData.clear()
-                            navController.navigate(MainScreen.HomePage.name)
-                        },*/
                         onClick = {
+                            if(title == "" && startDate == "" && endDate == ""){
+                                message.value = "Please input required fields"
+                                showDialog.value = true
+                            }else{
+                                if (timeTmpData.isEmpty()){
+                                    message.value = "Please add time"
+                                    showDialog.value = true
+                                }else{
+                                    coroutineScope.launch {
+                                        // save data here
+                                        val addSchedUiState = viewModel.reminderUiState
+                                        addSchedUiState.reminderDetails =
+                                            ReminderDetails(title, startDate, endDate)
+                                        viewModel.insertSchedule()
 
+                                        message.value = "Schedule successfully added"
+                                        showDialog.value = true
+                                        isSuccess.value = true
+
+                                        timeTmpData.clear()
+                                    }
+                                }
+                            }
                         },
                         colors = ButtonDefaults.buttonColors( containerColor = Color.White ),
                     ) {
