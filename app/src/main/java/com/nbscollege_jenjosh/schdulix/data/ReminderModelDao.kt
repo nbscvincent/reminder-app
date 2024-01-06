@@ -45,7 +45,6 @@ interface ReminderModelDao {
     @Delete
     suspend fun deleteDtl(time: AddTimeModel)
 
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDtlTmp(time: AddTimeTmpModel)
 }

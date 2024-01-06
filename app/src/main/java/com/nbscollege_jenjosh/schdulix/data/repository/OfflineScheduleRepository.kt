@@ -1,6 +1,7 @@
 package com.nbscollege_jenjosh.schdulix.data.repository
 
 import com.nbscollege_jenjosh.schdulix.data.ReminderModelDao
+import com.nbscollege_jenjosh.schdulix.model.AddTimeTmpModel
 import com.nbscollege_jenjosh.schdulix.model.ReminderModel
 import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.AddTimeTmpModeletails
 import kotlinx.coroutines.flow.Flow
@@ -14,8 +15,8 @@ class OfflineScheduleRepository(private val timeTmpDAO: ReminderModelDao) : Sche
         TODO("Not yet implemented")
     }
 
-    //override suspend fun insertScheduleTmp(time: AddTimeTmpModel) = timeTmpDAO.insertDtlTmp(time)
-    override suspend fun insertScheduleTmp(time: AddTimeTmpModeletails) {
+    //override suspend fun insertScheduleTmp(time: AddTimeTmpModeletails) = timeTmpDAO.insertDtlTmp(time)
+    override suspend fun insertScheduleTmp(time: AddTimeTmpModel) {
         TODO("Not yet implemented")
     }
 

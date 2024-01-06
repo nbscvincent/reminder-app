@@ -6,9 +6,10 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 //data class ReminderModel(val title: String, val startDate: String, val endDate: String, val timeList: SnapshotStateList<AddTimeModel>)
-//data class AddTimeModel (val time: String)
+data class TimeTmpModel (val time: String)
 var reminderData = mutableStateListOf<ReminderModel>()
 var timeData = mutableStateListOf<AddTimeModel>()
+var timeTmpData = mutableStateListOf<TimeTmpModel>()
 
 @Entity(tableName = "schedule")
 data class ReminderModel(
@@ -24,6 +25,7 @@ data class AddTimeModel (
     val head_id: Int,
     val time: String
 )
+
 
 @Entity(tableName = "time_tmp")
 data class AddTimeTmpModel (

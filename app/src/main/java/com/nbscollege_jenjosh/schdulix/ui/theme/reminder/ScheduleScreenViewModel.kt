@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.nbscollege_jenjosh.schdulix.data.repository.ScheduleRepository
+import com.nbscollege_jenjosh.schdulix.model.AddTimeTmpModel
 
 class ScheduleScreenViewModel(private val scheduleRepository: ScheduleRepository ): ViewModel() {
     /**
@@ -82,6 +83,7 @@ data class AddTimeTmpModeletails(
     val time: String = ""
 )
 
-fun AddTimeTmpModeletails.toTime(): AddTimeTmpModeletails = AddTimeTmpModeletails(
-    time = time,
+fun AddTimeTmpModeletails.toTime(): AddTimeTmpModel = AddTimeTmpModel(
+    id = null,
+    time = time
 )

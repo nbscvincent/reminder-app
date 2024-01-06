@@ -205,10 +205,14 @@ fun RegistrationScreen(
             Button(
                 onClick = {
                     coroutineScope.launch {
+                        // check if user is existing
+
+
+                        // save data
                         val userUiState = viewModel.userUiState
                         userUiState.userDetails = UserDetails(username,password,firstName,lastName)
                         viewModel.saveUser()
-                        Log.i("userUiState", userUiState.userDetails.toString())
+                        //Log.i("userUiState", userUiState.userDetails.toString())
                     }
                     //navController.navigate(MainRoute.MainScreen.name)
                 },
@@ -234,6 +238,26 @@ fun RegistrationScreen(
             ) {
                 Text(
                     text = "SIGN UP",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    color = Color.White,
+                )
+            }
+            Spacer(modifier = Modifier.height(15.dp))
+            Button(
+                onClick = {
+                    navController.navigate(MainScreen.Splash.name)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF6562DF)
+                ),
+                shape = RoundedCornerShape(5.dp),
+            ) {
+                Text(
+                    text = "BACK",
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
                     color = Color.White,

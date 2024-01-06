@@ -40,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -59,7 +61,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.nbscollege_jenjosh.schdulix.model.LoginUser
+import com.nbscollege_jenjosh.schdulix.model.UserProfile
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
+import com.nbscollege_jenjosh.schdulix.preferences.PreferencesManager
 import com.nbscollege_jenjosh.schdulix.screens.loginAlert
 import com.nbscollege_jenjosh.schdulix.ui.theme.SchdulixTheme
 import com.nbscollege_jenjosh.schdulix.ui.theme.user.AppViewModelProvider
@@ -67,13 +71,16 @@ import com.nbscollege_jenjosh.schdulix.ui.theme.user.LoginScreenViewModel
 import com.nbscollege_jenjosh.schdulix.ui.theme.user.RegistrationScreenViewModel
 import com.nbscollege_jenjosh.schdulix.ui.theme.user.UserDetails
 import com.nbscollege_jenjosh.schdulix.viewmodel.ScreenViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     navController: NavController,
-    screenViewModel: ScreenViewModel
+    screenViewModel: ScreenViewModel,
+    //viewModel: RegistrationScreenViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: LoginScreenViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -84,6 +91,10 @@ fun LoginScreen(
         loginAlert(openDialog.value) { openDialog.value = false }
     }
     val coroutineScope = rememberCoroutineScope()
+
+    val context = LocalContext.current
+    val preferencesManager = remember { PreferencesManager(context) }
+
 
     Scaffold(
         bottomBar = {
@@ -102,11 +113,36 @@ fun LoginScreen(
                 ) {
                     Button(
                         onClick = {
-                            if (LoginUser(email, password)) {
+                            /*if (LoginUser(email, password)) {
                                 screenViewModel.setLogin()
                                 navController.navigate(MainScreen.Splash.name)
                             } else {
                                 openDialog.value = true
+                            }*/
+
+                            coroutineScope.launch {
+                                val loginState = viewModel.userUiState
+                                loginState.userDetails = UserDetails(email, password)
+                                val flow : Flow<UserProfile?>? = viewModel.selectUser()
+
+                                if (flow != null) {
+                                    flow.collect{
+                                        if (it != null) {
+                                            screenViewModel.setLogin()
+                                            navController.navigate(MainScreen.Splash.name)
+
+                                            preferencesManager.saveData("login", "true")
+                                            preferencesManager.saveData("username", it.username)
+                                            preferencesManager.saveData("firstName", it.firstName)
+                                            preferencesManager.saveData("lastName", it.lastName)
+                                        }else{
+                                            openDialog.value = true
+                                        }
+                                    }
+                                }else{
+                                    // no record found
+                                    openDialog.value = true
+                                }
                             }
                         },
                         modifier = Modifier
