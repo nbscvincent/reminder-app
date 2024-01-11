@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.nbscollege_jenjosh.schdulix.data.repository.UserRepository
+import com.nbscollege_jenjosh.schdulix.model.UserProfile
+import kotlinx.coroutines.flow.Flow
 
 class RegistrationScreenViewModel(private val usersRepository: UserRepository) : ViewModel() {
     /**
@@ -32,6 +34,9 @@ class RegistrationScreenViewModel(private val usersRepository: UserRepository) :
         return with(uiState) {
             username.isNotBlank() && password.isNotBlank()
         }
+    }
+    fun selectUser(username:String) : Flow<UserProfile?> {
+        return usersRepository.getUserStream(username)
     }
 }
 

@@ -53,6 +53,7 @@ import com.nbscollege_jenjosh.schdulix.ui.theme.user.AppViewModelProvider
 import com.nbscollege_jenjosh.schdulix.ui.theme.user.LoginScreenViewModel
 import com.nbscollege_jenjosh.schdulix.ui.theme.user.RegistrationScreenViewModel
 import com.nbscollege_jenjosh.schdulix.ui.theme.user.UserDetails
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,7 +70,6 @@ fun RegistrationScreen(
     var isSuccess = remember { mutableStateOf( false ) }
     var passwordShow: Boolean by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
-
 
     val showDialog = remember { mutableStateOf( false ) }
     if (showDialog.value){
@@ -122,6 +122,7 @@ fun RegistrationScreen(
                 },
                 placeholder = { Text(text = "Username") },
                 label = { Text(text = "Username") },
+                singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp),
@@ -134,9 +135,6 @@ fun RegistrationScreen(
                 value = password,
                 onValueChange = { password = it },
                 shape = RoundedCornerShape(10.dp),
-                /*trailingIcon = {
-                    Icon(imageVector = Icons.Default.Lock, contentDescription = "Password")
-                },*/
                 placeholder = { Text(text = "Strong Password") },
                 label = { Text(text = "Strong Password") },
                 keyboardOptions = KeyboardOptions(
@@ -148,7 +146,6 @@ fun RegistrationScreen(
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     textColor = Color.Black
                 ),
-                // visualTransformation = PasswordVisualTransformation()
                 trailingIcon = {
                     val image = if (passwordShow)
                         Icons.Filled.Visibility
@@ -163,7 +160,7 @@ fun RegistrationScreen(
                         Icon(imageVector = image, contentDescription =  description)
                     }
                 },
-                singleLine = false,
+                singleLine = true,
                 visualTransformation = if (passwordShow) VisualTransformation.None else PasswordVisualTransformation(),
 
             )
@@ -175,6 +172,7 @@ fun RegistrationScreen(
                 trailingIcon = {
                     Icon(imageVector = Icons.Default.Person, contentDescription = "First Name")
                 },
+                singleLine = true,
                 placeholder = { Text(text = "First Name") },
                 label = { Text(text = "First Name") },
                 modifier = Modifier
@@ -194,6 +192,7 @@ fun RegistrationScreen(
                 },
                 placeholder = { Text(text = "Last Name") },
                 label = { Text(text = "Last Name") },
+                singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp),
@@ -204,26 +203,37 @@ fun RegistrationScreen(
             Spacer(modifier = Modifier.height(15.dp))
             Button(
                 onClick = {
-                    coroutineScope.launch {
-                        val userUiState = viewModel.userUiState
-                        userUiState.userDetails = UserDetails(username,password,firstName,lastName)
-                        viewModel.saveUser()
-                        Log.i("userUiState", userUiState.userDetails.toString())
+                    // validate here first if input is completed
+                    if(username == "" && password == "" && firstName == "" && lastName == ""){
+                        message.value = "Please input required fields"
+                        showDialog.value = true
+                    }else{
+                        coroutineScope.launch {
+                            // check if user is existing
+                            var saveData = 'N'
+                            val check = viewModel.selectUser(username)
+                            check.collect {
+                                Log.i("loginState", it.toString())
+                                if (it == null) {
+                                    saveData = 'Y'
+                                }
+                                if (saveData == 'Y') {
+                                    message.value = "Successfully registered"
+                                    showDialog.value = true
+                                    isSuccess.value = true
+
+                                    val userUiState = viewModel.userUiState
+                                    userUiState.userDetails =
+                                        UserDetails(username, password, firstName, lastName)
+                                    viewModel.saveUser()
+                                } else {
+                                    message.value = "User already exist"
+                                    showDialog.value = true
+                                }
+                            }
+                        }
                     }
-                    //navController.navigate(MainRoute.MainScreen.name)
                 },
-                /*onClick = {
-                    // check if user is existing
-                    if (checkLogin(username)){
-                        message.value = "User already exist"
-                        showDialog.value = true
-                    }else {
-                        message.value = "Successfully registered"
-                        showDialog.value = true
-                        isSuccess.value = true
-                        Register(username, password, firstName, lastName)
-                    }
-                },*/
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp),
@@ -234,6 +244,26 @@ fun RegistrationScreen(
             ) {
                 Text(
                     text = "SIGN UP",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    color = Color.White,
+                )
+            }
+            Spacer(modifier = Modifier.height(15.dp))
+            Button(
+                onClick = {
+                    navController.navigate(MainScreen.Splash.name)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF6562DF)
+                ),
+                shape = RoundedCornerShape(5.dp),
+            ) {
+                Text(
+                    text = "BACK",
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
                     color = Color.White,

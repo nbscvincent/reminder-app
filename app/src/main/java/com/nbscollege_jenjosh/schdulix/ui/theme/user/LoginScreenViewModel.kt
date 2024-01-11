@@ -1,11 +1,16 @@
 package com.nbscollege_jenjosh.schdulix.ui.theme.user
 
+import android.util.Log
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.nbscollege_jenjosh.schdulix.data.repository.UserRepository
 import com.nbscollege_jenjosh.schdulix.model.UserProfile
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 
 class LoginScreenViewModel(private val usersRepository: UserRepository) : ViewModel() {
 
@@ -15,20 +20,15 @@ class LoginScreenViewModel(private val usersRepository: UserRepository) : ViewMo
     var userUiState by mutableStateOf(UserUiState())
         private set
     /**
-     * Updates the [userUiState] with the value provided in the argument. This method also triggers
-     * a validation for input values.
+     * Select a [User] in the Room database
      */
-    fun updateUiState(userDetails: UserDetails) {
-        userUiState =
-            UserUiState(userDetails = userDetails, isEntryValid = validateInput(userDetails))
-    }
-    /**
-     * Inserts an [User] in the Room database
-     */
-    suspend fun selectUser(username: String, password: String) {
+    suspend fun selectUser(userDetails: UserDetails = userUiState.userDetails): Flow<UserProfile?>? {
+        var flow : Flow<UserProfile?>? = null
+
         if (validateInput()) {
-            usersRepository.getUserPasswordStream(username, password)
+            flow = usersRepository.getUserPasswordStream(userDetails.username, userDetails.password)
         }
+        return flow
     }
     private fun validateInput(uiState: UserDetails = userUiState.userDetails): Boolean {
         return with(uiState) {
@@ -41,7 +41,7 @@ class LoginScreenViewModel(private val usersRepository: UserRepository) : ViewMo
  */
 data class UserUiState(
     var userDetails: UserDetails = UserDetails(),
-    val isEntryValid: Boolean = false
+    val isEntryValid: Boolean = false,
 )
 data class UserDetails(
     val username: String = "",

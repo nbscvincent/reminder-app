@@ -50,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -61,6 +62,7 @@ import androidx.navigation.NavController
 import com.nbscollege_jenjosh.schdulix.model.userList
 import com.nbscollege_jenjosh.schdulix.model.usernameIndex
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
+import com.nbscollege_jenjosh.schdulix.preferences.PreferencesManager
 import com.nbscollege_jenjosh.schdulix.viewmodel.ScreenViewModel
 import kotlinx.coroutines.launch
 
@@ -70,6 +72,8 @@ fun Profile(
     navController: NavController,
     screenViewModel: ScreenViewModel
 ) {
+    val context = LocalContext.current
+    val preferencesManager = remember { PreferencesManager(context) }
 
     Scaffold(
         topBar = {
@@ -137,7 +141,8 @@ fun Profile(
                         .padding(end = 25.dp)
                 )
                 Text(
-                    text = userList[usernameIndex].username,
+                    //text = userList[usernameIndex].username,
+                    text = preferencesManager.getData("username", ""),
                     fontWeight = FontWeight.Normal,
                     fontSize = 15.sp,
                     color = Color(0xFF6562DF),
@@ -162,7 +167,8 @@ fun Profile(
                         .padding(end = 25.dp)
                 )
                 Text(
-                    text = userList[usernameIndex].firstName,
+                    //text = userList[usernameIndex].firstName,
+                    text = preferencesManager.getData("firstName", ""),
                     fontWeight = FontWeight.Normal,
                     fontSize = 15.sp,
                     color = Color(0xFF6562DF),
@@ -187,7 +193,8 @@ fun Profile(
                         .padding(end = 25.dp)
                 )
                 Text(
-                    text = userList[usernameIndex].lastName,
+                    //text = userList[usernameIndex].lastName,
+                    text = preferencesManager.getData("lastName", ""),
                     fontWeight = FontWeight.Normal,
                     fontSize = 15.sp,
                     color = Color(0xFF6562DF),
@@ -199,6 +206,12 @@ fun Profile(
             Button(
                 onClick = {
                     screenViewModel.unsetLogin()
+
+                    preferencesManager.saveData("login", "")
+                    preferencesManager.saveData("username", "")
+                    preferencesManager.saveData("firstName", "")
+                    preferencesManager.saveData("lastName", "")
+
                     navController.navigate(MainScreen.Splash.name)
                 },
                 modifier = Modifier

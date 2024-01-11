@@ -3,7 +3,6 @@ package com.nbscollege_jenjosh.schdulix
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.util.Log
 import android.widget.DatePicker
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -57,21 +56,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.nbscollege_jenjosh.schdulix.model.AddTimeModel
-import com.nbscollege_jenjosh.schdulix.model.AddTimeTmpModel
-import com.nbscollege_jenjosh.schdulix.model.ReminderModel
-import com.nbscollege_jenjosh.schdulix.model.reminderData
+import com.nbscollege_jenjosh.schdulix.model.TimeTmpModel
 import com.nbscollege_jenjosh.schdulix.model.timeData
+import com.nbscollege_jenjosh.schdulix.model.timeTmpData
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
-import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.AddTimeTmpModeletails
+import com.nbscollege_jenjosh.schdulix.screens.registrationAlert
+import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ReminderDetails
 import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ScheduleScreenViewModel
 import com.nbscollege_jenjosh.schdulix.ui.theme.user.AppViewModelProvider
-import com.nbscollege_jenjosh.schdulix.ui.theme.user.UserDetails
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.util.Calendar
-
-
 data class TimeSchedule (var indexTime: Int = 0, var time: String = "" );
 
 @SuppressLint("UnrememberedMutableState")
@@ -133,6 +127,23 @@ fun AddSchedule(
 
     val coroutineScope = rememberCoroutineScope()
 
+    var message = remember { mutableStateOf( "" ) }
+    var isSuccess = remember { mutableStateOf( false ) }
+    val showDialog = remember { mutableStateOf( false ) }
+    if (showDialog.value){
+        registrationAlert(
+            message = message,
+            showDialog = showDialog.value,
+            isSuccess = isSuccess.value,
+            navController = navController,
+        ) {
+            showDialog.value = false
+            if (isSuccess.value) {
+                navController.navigate(MainScreen.Splash.name)
+            }
+        }
+    }
+
     Scaffold (
         topBar = {
             CenterAlignedTopAppBar(
@@ -160,13 +171,30 @@ fun AddSchedule(
                 },
                 actions = {
                     Button(
-                        /*onClick = {
-                            reminderData.add( ReminderModel (title, startDate, endDate, timeData) )
-                            timeData.clear()
-                            navController.navigate(MainScreen.HomePage.name)
-                        },*/
                         onClick = {
+                            if(title == "" && startDate == "" && endDate == ""){
+                                message.value = "Please input required fields"
+                                showDialog.value = true
+                            }else{
+                                if (timeTmpData.isEmpty()){
+                                    message.value = "Please add time"
+                                    showDialog.value = true
+                                }else{
+                                    coroutineScope.launch {
+                                        // save data here
+                                        val addSchedUiState = viewModel.reminderUiState
+                                        addSchedUiState.reminderDetails =
+                                            ReminderDetails(title, startDate, endDate)
+                                        viewModel.insertSchedule()
 
+                                        message.value = "Schedule successfully added"
+                                        showDialog.value = true
+                                        isSuccess.value = true
+
+                                        timeTmpData.clear()
+                                    }
+                                }
+                            }
                         },
                         colors = ButtonDefaults.buttonColors( containerColor = Color.White ),
                     ) {
@@ -312,18 +340,20 @@ fun AddSchedule(
                     onClick = {
                         if(stringLabel != "") {
                             //timeData.add(AddTimeModel(stringLabel))
+                            //stringLabel = "";
+                            timeTmpData.add(TimeTmpModel(stringLabel));
                             stringLabel = "";
 
-                            coroutineScope.launch {
+                            /*coroutineScope.launch {
                                 //val userUiState = viewModel.userUiState
                                 //userUiState.userDetails = UserDetails(username,password,firstName,lastName)
                                 //viewModel.saveUser()
                                 //Log.i("userUiState", userUiState.userDetails.toString())
 
                                 val timeTmpUiState = viewModel.reminderDtlTmpUiState
-                                timeTmpUiState.reminderDtlTmpDetails = AddTimeTmpModeletails(stringLabel)
+                                timeTmpUiState.reminderDtlTmpDetails = AddTimeTmpModeletails()
                                 viewModel.saveTimeTmp()
-                            }
+                            }*/
                         }
                     },
                     modifier = Modifier
@@ -342,7 +372,7 @@ fun AddSchedule(
                 }
             }
             LazyColumn{
-                itemsIndexed(timeData){index, timeList ->
+                itemsIndexed(timeTmpData){index, timeList ->
                     ElevatedCard(
                         onClick = {  },
                         elevation = CardDefaults.cardElevation(
@@ -368,7 +398,7 @@ fun AddSchedule(
                             )
                             IconButton(
                                 onClick = {
-                                    timeData.removeAt(index)
+                                    timeTmpData.removeAt(index)
                                 }
                             ) {
                                 Icon(

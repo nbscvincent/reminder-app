@@ -15,9 +15,9 @@ interface UserProfileDao {
         fun getAllUsers(): Flow<List<UserProfile>>
 
         @Query("SELECT * from user WHERE username = :id")
-        fun getUsers(id: Int): Flow<UserProfile>
+        fun getUsers(id: String): Flow<UserProfile>
 
-        @Query("SELECT * from user WHERE username = :username AND password = :password")
+        @Query("SELECT * FROM user WHERE username = :username AND password = :password")
         fun getUsersPass(username: String, password: String): Flow<UserProfile>
 
         @Insert(onConflict = OnConflictStrategy.REPLACE)

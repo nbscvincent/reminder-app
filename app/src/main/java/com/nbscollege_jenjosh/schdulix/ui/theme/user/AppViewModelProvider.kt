@@ -10,10 +10,12 @@ import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ScheduleScreenViewModel
 object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
-            LoginScreenViewModel(
+            RegistrationScreenViewModel(
                 schdulixApplication().container.userRepository
             )
-            RegistrationScreenViewModel(
+        }
+        initializer {
+            LoginScreenViewModel(
                 schdulixApplication().container.userRepository
             )
         }

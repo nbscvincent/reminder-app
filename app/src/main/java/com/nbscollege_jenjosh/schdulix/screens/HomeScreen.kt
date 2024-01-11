@@ -1,5 +1,6 @@
 package com.nbscollege_jenjosh.schdulix.screens
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -23,9 +24,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -42,6 +46,7 @@ import com.nbscollege_jenjosh.schdulix.Profile
 import com.nbscollege_jenjosh.schdulix.RegistrationScreen
 import com.nbscollege_jenjosh.schdulix.SplashScreen
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
+import com.nbscollege_jenjosh.schdulix.preferences.PreferencesManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -73,13 +78,23 @@ fun SchdulixApp (
 @Composable
 fun CheckLogin( screenViewModel: ScreenViewModel ){
     val navController: NavHostController = rememberNavController()
-    var isLogin = screenViewModel.checkLogin()
-
+    /*var isLogin = screenViewModel.checkLogin()
     if (!isLogin){
         MainLogin(navController, screenViewModel)
     }else{
         MainHomeScreen(navController, screenViewModel)
+    }*/
+
+    val context = LocalContext.current
+    val preferencesManager = remember { PreferencesManager(context) }
+    val data = preferencesManager.getData("login", "")
+
+    if (data == ""){
+        MainLogin(navController, screenViewModel)
+    }else{
+        MainHomeScreen(navController, screenViewModel)
     }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

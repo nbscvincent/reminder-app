@@ -5,6 +5,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.nbscollege_jenjosh.schdulix.data.repository.ScheduleRepository
+import com.nbscollege_jenjosh.schdulix.model.AddTimeTmpModel
+import com.nbscollege_jenjosh.schdulix.model.ReminderModel
+import com.nbscollege_jenjosh.schdulix.model.UserProfile
+import com.nbscollege_jenjosh.schdulix.ui.theme.user.UserDetails
+import com.nbscollege_jenjosh.schdulix.ui.theme.user.toUser
+import kotlinx.coroutines.flow.Flow
 
 class ScheduleScreenViewModel(private val scheduleRepository: ScheduleRepository ): ViewModel() {
     /**
@@ -12,43 +18,25 @@ class ScheduleScreenViewModel(private val scheduleRepository: ScheduleRepository
      */
     var reminderUiState by mutableStateOf(ScheduleUiState())
         private set
-    var reminderDtlUiState by mutableStateOf(ScheduleDtlUiState())
-        private set
-    var reminderDtlTmpUiState by mutableStateOf(ScheduleDtlTmpUiState())
-        private set
 
-    fun updateUiState(reminderDetails: ReminderDetails) {
-        reminderUiState =
-            ScheduleUiState(reminderDetails = reminderDetails, isEntryValid = validateInput(reminderDetails))
+    suspend fun insertSchedule() {
+        if (validateInput()) {
+            scheduleRepository.insertSchedule(reminderUiState.reminderDetails.toReminder())
+        }
     }
-    fun updateDtlUiState(reminderDtlDetails: ReminderDetailsDtl) {
-        reminderDtlUiState =
-            ScheduleDtlUiState(reminderDtlDetails = reminderDtlDetails, isEntryValid = validateDtlInput(reminderDtlDetails))
-    }
-    fun updateDtlTmpUiState(reminderDtlTmpDetails: AddTimeTmpModeletails) {
-        reminderDtlTmpUiState =
-            ScheduleDtlTmpUiState(reminderDtlTmpDetails = reminderDtlTmpDetails, isEntryValid = validateDtlTmpInput(reminderDtlTmpDetails))
+
+    /*suspend fun getAllSchedule() : Flow<List<ReminderModel>> {
+        return scheduleRepository.getAllScheduleStream()
+    }*/
+    suspend fun getAllSchedule(){
+        scheduleRepository.getAllScheduleStream().collect{
+            reminderUiState.reminderDetailsList = it
+        }
     }
 
     private fun validateInput(uiState: ReminderDetails = reminderUiState.reminderDetails): Boolean {
         return with(uiState) {
             title.isNotBlank() && startDate.isNotBlank() && endDate.isNotBlank()
-        }
-    }
-    private fun validateDtlInput(uiState: ReminderDetailsDtl = reminderDtlUiState.reminderDtlDetails): Boolean {
-        return with(uiState) {
-            time.isNotBlank()
-        }
-    }
-    private fun validateDtlTmpInput(uiState: AddTimeTmpModeletails = reminderDtlTmpUiState.reminderDtlTmpDetails): Boolean {
-        return with(uiState) {
-            time.isNotBlank()
-        }
-    }
-
-    suspend fun saveTimeTmp() {
-        if (validateDtlTmpInput()) {
-            scheduleRepository.insertScheduleTmp(reminderDtlTmpUiState.reminderDtlTmpDetails.toTime())
         }
     }
 
@@ -58,7 +46,8 @@ class ScheduleScreenViewModel(private val scheduleRepository: ScheduleRepository
  */
 data class ScheduleUiState(
     var reminderDetails: ReminderDetails = ReminderDetails(),
-    val isEntryValid: Boolean = false
+    val isEntryValid: Boolean = false,
+    var reminderDetailsList: List<ReminderModel> = emptyList()
 )
 data class ReminderDetails(
     val title: String = "",
@@ -66,22 +55,8 @@ data class ReminderDetails(
     val endDate: String = "",
 )
 
-data class ScheduleDtlUiState(
-    var reminderDtlDetails: ReminderDetailsDtl = ReminderDetailsDtl(),
-    val isEntryValid: Boolean = false
-)
-data class ReminderDetailsDtl(
-    val time: String = ""
-)
-
-data class ScheduleDtlTmpUiState(
-    var reminderDtlTmpDetails: AddTimeTmpModeletails = AddTimeTmpModeletails(),
-    val isEntryValid: Boolean = false
-)
-data class AddTimeTmpModeletails(
-    val time: String = ""
-)
-
-fun AddTimeTmpModeletails.toTime(): AddTimeTmpModeletails = AddTimeTmpModeletails(
-    time = time,
+fun ReminderDetails.toReminder(): ReminderModel = ReminderModel(
+    title = title,
+    startDate = startDate,
+    endDate = endDate,
 )
