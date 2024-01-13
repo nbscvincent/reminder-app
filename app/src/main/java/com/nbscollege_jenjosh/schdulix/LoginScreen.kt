@@ -79,7 +79,6 @@ import kotlinx.coroutines.launch
 fun LoginScreen(
     navController: NavController,
     screenViewModel: ScreenViewModel,
-    //viewModel: RegistrationScreenViewModel = viewModel(factory = AppViewModelProvider.Factory)
     viewModel: LoginScreenViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     var email by remember { mutableStateOf("") }

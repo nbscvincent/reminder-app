@@ -1,6 +1,7 @@
 package com.nbscollege_jenjosh.schdulix.data.repository
 
 import com.nbscollege_jenjosh.schdulix.data.ReminderModelDao
+import com.nbscollege_jenjosh.schdulix.model.AddTimeModel
 import com.nbscollege_jenjosh.schdulix.model.AddTimeTmpModel
 import com.nbscollege_jenjosh.schdulix.model.ReminderModel
 import com.nbscollege_jenjosh.schdulix.model.UserProfile
@@ -13,12 +14,16 @@ class OfflineScheduleRepository(private val reminderDao: ReminderModelDao) : Sch
         TODO("Not yet implemented")
     }
 
-    override suspend fun deleteSchedule(user: ReminderModel) {
-        TODO("Not yet implemented")
-    }
+    override suspend fun deleteSchedule(schedule: ReminderModel) = reminderDao.delete(schedule)
 
     override suspend fun updateSchedule(user: ReminderModel) {
         TODO("Not yet implemented")
     }
+
+    override fun getScheduleStream(title: String): Flow<ReminderModel> = reminderDao.getSchedule(title)
+
+    override suspend fun insertScheduleDtl(scheduledtl: List<AddTimeModel>) = reminderDao.insertdtl(scheduledtl)
+    override suspend fun deleteScheduleDtl(title: String) = reminderDao.deletedtl(title)
+    override fun getAllScheduleDtl(title: String): Flow<List<AddTimeModel>> = reminderDao.getAllScheduleDetail(title)
 
 }

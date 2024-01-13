@@ -79,6 +79,7 @@ import androidx.navigation.NavController
 import com.nbscollege_jenjosh.schdulix.model.reminderData
 import com.nbscollege_jenjosh.schdulix.model.timeData
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
+import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ReminderDetails
 import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ScheduleScreenViewModel
 import com.nbscollege_jenjosh.schdulix.ui.theme.user.AppViewModelProvider
 import com.nbscollege_jenjosh.schdulix.viewmodel.ScreenViewModel
@@ -93,11 +94,7 @@ fun HomePage(
     viewModel: ScheduleScreenViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val homePageState = viewModel.reminderUiState
-
-    coroutineScope.launch{
-        viewModel.getAllSchedule()
-    }
+    val schedItems by viewModel.schedItems.collectAsState(initial = emptyList())
     
     Scaffold (
         topBar = {
@@ -168,10 +165,10 @@ fun HomePage(
             )
             Spacer(modifier = Modifier.height(15.dp))
             LazyColumn {
-                itemsIndexed(homePageState.reminderDetailsList) { index, data ->
+                itemsIndexed(schedItems) { index, data ->
                     ElevatedCard(
                         onClick = {
-                            navController.navigate("EditSchedule/$index")
+                            navController.navigate("EditSchedule/${data.title}")
                         },
                         elevation = CardDefaults.cardElevation(
                             defaultElevation = 6.dp
@@ -201,7 +198,17 @@ fun HomePage(
                                 )
                                 IconButton(
                                     onClick = {
-                                        reminderData.removeAt(index)
+                                        //reminderData.removeAt(index)
+
+                                        coroutineScope.launch {
+                                            val schedUiState = viewModel.reminderUiState
+                                            schedUiState.reminderDetails = ReminderDetails(
+                                                data.title,
+                                                data.startDate,
+                                                data.endDate
+                                            )
+                                            viewModel.deleteSchedule()
+                                        }
                                     }
                                 ) {
                                     Icon(

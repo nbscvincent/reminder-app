@@ -16,7 +16,7 @@ interface ReminderModelDao {
     @Query("SELECT * FROM schedule ORDER BY title ASC")
     fun getAllSchedule(): Flow<List<ReminderModel>>
 
-    @Query("SELECT * from schedule WHERE title = :title")
+    @Query("SELECT * FROM schedule WHERE title = :title")
     fun getSchedule(title: String): Flow<ReminderModel>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -27,5 +27,15 @@ interface ReminderModelDao {
 
     @Delete
     suspend fun delete(schedule: ReminderModel)
+
+    // detail time insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertdtl(scheduledtl: List<AddTimeModel>)
+
+    @Query("DELETE FROM time WHERE title = :title ")
+    suspend fun deletedtl(title: String)
+
+    @Query("SELECT * FROM time WHERE title = :title ORDER BY time ASC")
+    fun getAllScheduleDetail(title: String): Flow<List<AddTimeModel>>
 
 }

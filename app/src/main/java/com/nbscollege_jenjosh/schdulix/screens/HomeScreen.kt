@@ -78,12 +78,6 @@ fun SchdulixApp (
 @Composable
 fun CheckLogin( screenViewModel: ScreenViewModel ){
     val navController: NavHostController = rememberNavController()
-    /*var isLogin = screenViewModel.checkLogin()
-    if (!isLogin){
-        MainLogin(navController, screenViewModel)
-    }else{
-        MainHomeScreen(navController, screenViewModel)
-    }*/
 
     val context = LocalContext.current
     val preferencesManager = remember { PreferencesManager(context) }
@@ -230,7 +224,7 @@ fun MainHomeScreen(
                     val bid = navBackStackEntry.arguments?.getString("bid")
 
                     bid?.let {
-                        EditSchedule(navController = navController, index = bid.toInt())
+                        EditSchedule(navController = navController, index = bid.toString())
                     }
                 }
             }
