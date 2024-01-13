@@ -141,6 +141,9 @@ fun MainHomeScreen(
     val openDrawer: () -> Unit = { scope.launch { drawerState.open() } }
     val closeDrawer: () -> Unit = { scope.launch { drawerState.close() } }
 
+    val context = LocalContext.current
+    val preferencesManager = remember { PreferencesManager(context) }
+
     BackHandler(
         enabled = drawerState.isOpen,
     ) {
@@ -184,6 +187,24 @@ fun MainHomeScreen(
                     onClick = {
                         closeDrawer()
                         navController.navigate(MainScreen.AddSchedule.name)
+                    }
+                )
+                NavigationDrawerItem(
+                    label = {
+                        Text(text = "Sign Out")
+                    },
+                    selected = false,
+                    onClick = {
+                        screenViewModel.unsetLogin()
+
+                        preferencesManager.saveData("login", "")
+                        preferencesManager.saveData("username", "")
+                        preferencesManager.saveData("firstName", "")
+                        preferencesManager.saveData("lastName", "")
+
+                        closeDrawer()
+
+                        navController.navigate(MainScreen.Splash.name)
                     }
                 )
             }

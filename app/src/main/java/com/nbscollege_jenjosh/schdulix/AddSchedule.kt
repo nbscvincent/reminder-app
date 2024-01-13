@@ -61,6 +61,7 @@ import com.nbscollege_jenjosh.schdulix.model.TimeTmpModel
 import com.nbscollege_jenjosh.schdulix.model.timeData
 import com.nbscollege_jenjosh.schdulix.model.timeTmpData
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
+import com.nbscollege_jenjosh.schdulix.preferences.PreferencesManager
 import com.nbscollege_jenjosh.schdulix.screens.registrationAlert
 import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ReminderDetails
 import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ReminderTimeDetails
@@ -89,6 +90,10 @@ fun AddSchedule(
     val mMonth: Int
     val mDay: Int
 
+    var padDay: String = ""
+    var padMOnth: String = ""
+    var intMonth = 0
+
     val mCalendar = Calendar.getInstance()
 
     mYear = mCalendar.get(Calendar.YEAR)
@@ -100,13 +105,34 @@ fun AddSchedule(
     val mDateStartDate = DatePickerDialog(
         mContext,
         { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
-            startDate = "$mDayOfMonth/${mMonth+1}/$mYear"
+
+            padDay = mDayOfMonth.toString()
+            if (mDayOfMonth.toString().length == 1){
+                padDay = "0${mDayOfMonth.toString()}"
+            }
+            intMonth = mMonth + 1
+            padMOnth = intMonth.toString()
+            if (intMonth.toString().length == 1){
+                padMOnth = "0${intMonth.toString()}"
+            }
+            startDate = "$mYear-$padMOnth-${padDay}"
         }, mYear, mMonth, mDay
     )
     val mDateEndDate = DatePickerDialog(
         mContext,
         { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
-            endDate = "$mDayOfMonth/${mMonth+1}/$mYear"
+
+            padDay = mDayOfMonth.toString()
+            if (mDayOfMonth.toString().length == 1){
+                padDay = "0${mDayOfMonth.toString()}"
+            }
+            intMonth = mMonth + 1
+            padMOnth = intMonth.toString()
+            if (intMonth.toString().length == 1){
+                padMOnth = "0${intMonth.toString()}"
+            }
+
+            endDate = "$mYear-$padMOnth-${padDay}"
         }, mYear, mMonth, mDay
     )
 
@@ -127,6 +153,9 @@ fun AddSchedule(
             stringLabel = "${hourStr.padStart(2,'0')}:${minuteStr.padStart(2,'0')}"
         }, mHour, mMinute, false
     )
+    val context = LocalContext.current
+    val preferencesManager = remember { PreferencesManager(context) }
+    val username = preferencesManager.getData("username", "")
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -188,7 +217,7 @@ fun AddSchedule(
                                         val addSchedUiState = viewModel.reminderUiState
 
                                         // add header data
-                                        addSchedUiState.reminderDetails = ReminderDetails(title, startDate, endDate)
+                                        addSchedUiState.reminderDetails = ReminderDetails(title, startDate, endDate, username)
 
                                         // add details
                                         val timeList = mutableListOf<AddTimeModel>()

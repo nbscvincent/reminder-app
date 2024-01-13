@@ -1,6 +1,9 @@
 package com.nbscollege_jenjosh.schdulix
 
 import android.annotation.SuppressLint
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.provider.CalendarContract.Colors
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -66,6 +69,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -74,16 +78,23 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.content.getSystemService
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.nbscollege_jenjosh.schdulix.model.reminderData
 import com.nbscollege_jenjosh.schdulix.model.timeData
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
+import com.nbscollege_jenjosh.schdulix.preferences.PreferencesManager
 import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ReminderDetails
 import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ScheduleScreenViewModel
 import com.nbscollege_jenjosh.schdulix.ui.theme.user.AppViewModelProvider
 import com.nbscollege_jenjosh.schdulix.viewmodel.ScreenViewModel
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -93,9 +104,33 @@ fun HomePage(
     drawerState: DrawerState,
     viewModel: ScheduleScreenViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    val schedItems by viewModel.schedItems.collectAsState(initial = emptyList())
+
+    val context = LocalContext.current
+    val preferencesManager = remember { PreferencesManager(context) }
+    val username = preferencesManager.getData("username", "")
     
+    val coroutineScope = rememberCoroutineScope()
+    val schedItems by viewModel.getAllSchedule(username).collectAsState(initial = emptyList())
+
+    /*val channelId = "Schedulix_12"
+    var builder = NotificationCompat.Builder(context, channelId)
+        .setSmallIcon(R.drawable.schdulix_logo)
+        .setContentTitle("My notification")
+        .setContentText("Much longer text that cannot fit one line...")
+        .setStyle(NotificationCompat.BigTextStyle()
+            .bigText("Much longer text that cannot fit one line..."))
+        .setPriority(NotificationCompat.PRIORITY_HIGH)
+
+
+    val channel = NotificationChannel(channelId, "Schdulix", NotificationManager.IMPORTANCE_DEFAULT).apply {
+        description = "SAMPLE"
+    }
+    val notificationManager: NotificationManager =
+        context.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    notificationManager.createNotificationChannel(channel)
+    notificationManager.notify(100, builder.build())*/
+
+
     Scaffold (
         topBar = {
             CenterAlignedTopAppBar(
@@ -166,6 +201,13 @@ fun HomePage(
             Spacer(modifier = Modifier.height(15.dp))
             LazyColumn {
                 itemsIndexed(schedItems) { index, data ->
+                    var formatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy")
+
+                    var start = LocalDate.parse(data.startDate)
+                    var end = LocalDate.parse(data.endDate)
+                    var dateStart = start.format(formatter)
+                    var dateEnd = end.format(formatter)
+
                     ElevatedCard(
                         onClick = {
                             navController.navigate("EditSchedule/${data.title}")
@@ -198,8 +240,6 @@ fun HomePage(
                                 )
                                 IconButton(
                                     onClick = {
-                                        //reminderData.removeAt(index)
-
                                         coroutineScope.launch {
                                             val schedUiState = viewModel.reminderUiState
                                             schedUiState.reminderDetails = ReminderDetails(
@@ -219,11 +259,11 @@ fun HomePage(
                                 }
                             }
                             Text(
-                                text = data.startDate,
+                                text = dateStart.toString(),
                                 color = Color.Black
                             )
                             Text(
-                                text = data.endDate,
+                                text = dateEnd.toString(),
                                 color = Color.Black
                             )
                         }
@@ -255,12 +295,7 @@ fun HomePage(
                 )
             }
             Spacer(modifier = Modifier.height(200.dp))
-            /*ExtendedFloatingActionButton(
-                text = { Text(text = "Add New") },
-                icon = { Icon(imageVector = Icons.Filled.Add, contentDescription = "Add",) },
-                onClick = { navController.navigate(MainScreen.AddSchedule.name) },
-                containerColor = Color(0xFF6562DF)
-            )*/
         }
     }
 }
+

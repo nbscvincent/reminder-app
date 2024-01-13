@@ -44,12 +44,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -59,18 +57,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.nbscollege_jenjosh.schdulix.model.AddTimeModel
-import com.nbscollege_jenjosh.schdulix.model.ReminderModel
-import com.nbscollege_jenjosh.schdulix.model.reminderData
-import com.nbscollege_jenjosh.schdulix.model.timeData
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
+import com.nbscollege_jenjosh.schdulix.preferences.PreferencesManager
+import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ReminderDetails
+import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ReminderTimeDetails
 import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ScheduleScreenViewModel
 import com.nbscollege_jenjosh.schdulix.ui.theme.user.AppViewModelProvider
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectIndexed
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
@@ -84,11 +76,6 @@ fun EditSchedule(
     index: String,
     viewModel: ScheduleScreenViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    /*var title by remember { mutableStateOf(reminderData[index].title) }
-    var startDate by remember { mutableStateOf(reminderData[index].startDate) }
-    var endDate by remember { mutableStateOf(reminderData[index].endDate) }
-    var stringLabel by remember { mutableStateOf("") }
-     */
     val coroutineScope = rememberCoroutineScope()
 
     var title by remember { mutableStateOf("") }
@@ -140,6 +127,10 @@ fun EditSchedule(
 
     var listItem = viewModel.getAllScheduleDtl(index).collectAsState(initial = emptyList())
 
+    val context = LocalContext.current
+    val preferencesManager = remember { PreferencesManager(context) }
+    val username = preferencesManager.getData("username", "")
+
     // select all the details here
     coroutineScope.launch {
         viewModel.getSchedule(index).collect {
@@ -177,8 +168,13 @@ fun EditSchedule(
                 actions = {
                     Button(
                         onClick = {
-                            //reminderData[index] = ReminderModel (title, startDate, endDate, reminderData[index].timeList)
-                            navController.navigate(MainScreen.HomePage.name)
+                            coroutineScope.launch {
+                                val addSchedUiState = viewModel.reminderUiState
+
+                                addSchedUiState.reminderDetails = ReminderDetails(title, startDate, endDate, username)
+                                viewModel.updateSchedule()
+                                navController.navigate(MainScreen.HomePage.name)
+                            }
                         },
                         colors = ButtonDefaults.buttonColors( containerColor = Color.White ),
                     ) {
@@ -300,8 +296,6 @@ fun EditSchedule(
                     placeholder = { Text(text = "Time") },
                     label = { Text(text = "Time") },
                     modifier = Modifier
-                        //.fillMaxWidth()
-                        //.padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp)
                         .clickable { mTimePickerDialog.show() },
                     enabled = false,
                     colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -324,8 +318,13 @@ fun EditSchedule(
                 Button(
                     onClick = {
                         if(stringLabel != "") {
-                            //reminderData[index].timeList.add(AddTimeModel(stringLabel))
-                            stringLabel = "";
+                            coroutineScope.launch {
+                                val addSchedUiState = viewModel.reminderUiState
+
+                                addSchedUiState.addSchedLine = ReminderTimeDetails(null,index,1,stringLabel)
+                                viewModel.insertScheduleDetail()
+                                stringLabel = "";
+                            }
                         }
                     },
                     modifier = Modifier
@@ -344,7 +343,7 @@ fun EditSchedule(
                 }
             }
             LazyColumn{
-                itemsIndexed(listItem.value){index, timeList ->
+                itemsIndexed(listItem.value){indexx, timeList ->
                     ElevatedCard(
                         onClick = {  },
                         elevation = CardDefaults.cardElevation(
@@ -370,7 +369,12 @@ fun EditSchedule(
                             )
                             IconButton(
                                 onClick = {
-                                    //reminderData[index].timeList.removeAt(index)
+                                    coroutineScope.launch {
+                                        val addSchedUiState = viewModel.reminderUiState
+
+                                        addSchedUiState.addSchedLine = ReminderTimeDetails(timeList.id,index)
+                                        viewModel.deleteScheduleDtl()
+                                    }
                                 }
                             ) {
                                 Icon(
@@ -382,44 +386,6 @@ fun EditSchedule(
                         }
                     }
                 }
-                /*itemsIndexed(reminderData[index].timeList){index, timeList ->
-                    ElevatedCard(
-                        onClick = {  },
-                        elevation = CardDefaults.cardElevation(
-                            defaultElevation = 6.dp
-                        ),
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color.White,
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 25.dp, end = 25.dp, top = 1.dp, bottom = 5.dp),
-                    ) {
-                        Row (
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 10.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                text = timeList.time,
-                                color = Color.Black
-                            )
-                            IconButton(
-                                onClick = {
-                                    reminderData[index].timeList.removeAt(index)
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Delete,
-                                    contentDescription = "Delete",
-                                    tint = Color.Black
-                                )
-                            }
-                        }
-                    }
-                }*/
             }
         }
     }
