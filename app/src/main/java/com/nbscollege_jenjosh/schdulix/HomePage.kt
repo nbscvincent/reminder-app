@@ -1,9 +1,12 @@
 package com.nbscollege_jenjosh.schdulix
 
 import android.annotation.SuppressLint
+import android.app.AlarmManager
+import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.provider.CalendarContract.Colors
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -83,6 +86,12 @@ import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.getSystemService
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.nbscollege_jenjosh.schdulix.model.reminderData
 import com.nbscollege_jenjosh.schdulix.model.timeData
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
@@ -93,8 +102,16 @@ import com.nbscollege_jenjosh.schdulix.ui.theme.user.AppViewModelProvider
 import com.nbscollege_jenjosh.schdulix.viewmodel.ScreenViewModel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import java.util.Calendar
+import java.util.Locale
+import java.util.concurrent.TimeUnit
+import java.util.logging.SimpleFormatter
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -112,24 +129,29 @@ fun HomePage(
     val coroutineScope = rememberCoroutineScope()
     val schedItems by viewModel.getAllSchedule(username).collectAsState(initial = emptyList())
 
-    /*val channelId = "Schedulix_12"
-    var builder = NotificationCompat.Builder(context, channelId)
-        .setSmallIcon(R.drawable.schdulix_logo)
-        .setContentTitle("My notification")
-        .setContentText("Much longer text that cannot fit one line...")
-        .setStyle(NotificationCompat.BigTextStyle()
-            .bigText("Much longer text that cannot fit one line..."))
-        .setPriority(NotificationCompat.PRIORITY_HIGH)
 
+    /*Work Manager Start*/
+    val application = LocalContext.current.applicationContext as Application
+    val workManager = WorkManager.getInstance(application)
+    //val workBuilder = OneTimeWorkRequestBuilder<notificationReminder>()
+    /*val workBuilder = PeriodicWorkRequestBuilder<notificationReminder>(30,TimeUnit.SECONDS)
 
-    val channel = NotificationChannel(channelId, "Schdulix", NotificationManager.IMPORTANCE_DEFAULT).apply {
-        description = "SAMPLE"
-    }
-    val notificationManager: NotificationManager =
-        context.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-    notificationManager.createNotificationChannel(channel)
-    notificationManager.notify(100, builder.build())*/
+    workBuilder.setInputData(
+        workDataOf(
+            "NAME" to "HELLO",
+            "MESSAGE" to "THIS is description"
+        )
+    )
 
+    //val duration: Long = "82233213123L".toLong()
+    //val unit: TimeUnit = TimeUnit.SECONDS
+    //workBuilder.setInitialDelay(duration, unit)
+    //workBuilder.setInitialDelay(5, unit)
+    //workManager.enqueue(workBuilder.build())
+
+    workManager.enqueueUniquePeriodicWork("SAMPLE", ExistingPeriodicWorkPolicy.UPDATE, workBuilder.build())
+    */
+    /*Work Manager End*/
 
     Scaffold (
         topBar = {
@@ -207,6 +229,73 @@ fun HomePage(
                     var end = LocalDate.parse(data.endDate)
                     var dateStart = start.format(formatter)
                     var dateEnd = end.format(formatter)
+
+                    /*Work Manager Start*/
+
+                    /*val workBuilder = PeriodicWorkRequestBuilder<notificationReminder>(30,TimeUnit.SECONDS)
+                    workBuilder.setInputData(
+                        workDataOf(
+                            "NAME" to "HELLO",
+                            "MESSAGE" to "THIS is description"
+                        )
+                    )
+                    workManager.enqueueUniquePeriodicWork("SAMPLE", ExistingPeriodicWorkPolicy.UPDATE, workBuilder.build())
+
+                     */
+
+                    val schedStart = LocalDate.parse(data.startDate)
+                    val schedEnd = LocalDate.parse(data.endDate)
+                    val days = ChronoUnit.DAYS.between(LocalDate.now(), schedStart)
+                    val daysEnd = ChronoUnit.DAYS.between(LocalDate.now(), schedEnd)
+
+                    if (daysEnd < 0){
+                        // kill the schedule
+
+                    }else {
+
+                        val dueDate = Calendar.getInstance()
+                        val currentDate = Calendar.getInstance()
+
+                        // select the details here
+                        val listItem = viewModel.getAllScheduleDtl(data.title)
+                            .collectAsState(initial = emptyList())
+                        listItem.value.forEach {
+                            val str = it.time.split(':')
+
+                            dueDate.set(Calendar.HOUR_OF_DAY, str[0].toInt())
+                            dueDate.set(Calendar.MINUTE, str[1].toInt())
+                            if (dueDate.before(currentDate)) {
+                                dueDate.add(Calendar.HOUR_OF_DAY, days.toInt())
+                            }
+                            val timeDiff = dueDate.timeInMillis - currentDate.timeInMillis
+
+                            println("SAMPLE")
+                            println("SAMPLE - ${data.title}")
+                            println("SAMPLE - ${timeDiff}")
+                            println("SAMPLE - ${it.time}")
+                            println("SAMPLE")
+
+                            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm", Locale.ENGLISH);
+                            val localDate = LocalDateTime.parse("${data.startDate} ${it.time}", formatter);
+                            val timeInMilliseconds = localDate.atOffset(ZoneOffset.UTC).toInstant().toEpochMilli();
+
+                            if (timeDiff > 0) {
+                                /*val workBuilder = OneTimeWorkRequestBuilder<notificationReminder>()
+                                workBuilder.setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
+                                //val workBuilder = PeriodicWorkRequestBuilder<notificationReminder>(30,TimeUnit.SECONDS)
+
+                                workBuilder.setInputData(
+                                    workDataOf(
+                                        "ID" to "${it.id}1",
+                                        "NAME" to data.title,
+                                        "MESSAGE" to "This is schedule is now!"
+                                    )
+                                )
+                                workManager.enqueue(workBuilder.build())*/
+                            }
+                        }
+                        /*Work Manager End*/
+                    }
 
                     ElevatedCard(
                         onClick = {

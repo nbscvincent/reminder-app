@@ -1,6 +1,7 @@
 package com.nbscollege_jenjosh.schdulix
 
 import android.annotation.SuppressLint
+import android.app.Application
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.widget.DatePicker
@@ -56,6 +57,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.nbscollege_jenjosh.schdulix.model.AddTimeModel
 import com.nbscollege_jenjosh.schdulix.model.TimeTmpModel
 import com.nbscollege_jenjosh.schdulix.model.timeData
@@ -68,7 +74,11 @@ import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ReminderTimeDetails
 import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ScheduleScreenViewModel
 import com.nbscollege_jenjosh.schdulix.ui.theme.user.AppViewModelProvider
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 import java.util.Calendar
+import java.util.concurrent.TimeUnit
+
 data class TimeSchedule (var indexTime: Int = 0, var time: String = "" );
 
 @SuppressLint("UnrememberedMutableState")
@@ -176,6 +186,9 @@ fun AddSchedule(
         }
     }
 
+    val application = LocalContext.current.applicationContext as Application
+    val workManager = WorkManager.getInstance(application)
+
     Scaffold (
         topBar = {
             CenterAlignedTopAppBar(
@@ -222,6 +235,7 @@ fun AddSchedule(
                                         // add details
                                         val timeList = mutableListOf<AddTimeModel>()
                                         var cnt = 1
+
                                         timeTmpData.forEach{
                                             timeList.add(AddTimeModel(null,title,cnt,it.time))
                                             cnt++
