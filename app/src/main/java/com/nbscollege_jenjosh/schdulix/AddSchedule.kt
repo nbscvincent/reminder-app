@@ -1,6 +1,7 @@
 package com.nbscollege_jenjosh.schdulix
 
 import android.annotation.SuppressLint
+import android.app.Application
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.widget.DatePicker
@@ -56,16 +57,28 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
+import com.nbscollege_jenjosh.schdulix.model.AddTimeModel
 import com.nbscollege_jenjosh.schdulix.model.TimeTmpModel
 import com.nbscollege_jenjosh.schdulix.model.timeData
 import com.nbscollege_jenjosh.schdulix.model.timeTmpData
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
+import com.nbscollege_jenjosh.schdulix.preferences.PreferencesManager
 import com.nbscollege_jenjosh.schdulix.screens.registrationAlert
 import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ReminderDetails
+import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ReminderTimeDetails
 import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ScheduleScreenViewModel
 import com.nbscollege_jenjosh.schdulix.ui.theme.user.AppViewModelProvider
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 import java.util.Calendar
+import java.util.concurrent.TimeUnit
+
 data class TimeSchedule (var indexTime: Int = 0, var time: String = "" );
 
 @SuppressLint("UnrememberedMutableState")
@@ -75,6 +88,7 @@ fun AddSchedule(
     navController: NavController,
     viewModel: ScheduleScreenViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    timeTmpData.clear()
     var title by remember { mutableStateOf("") }
     var startDate by remember { mutableStateOf("") }
     var endDate by remember { mutableStateOf("") }
@@ -85,6 +99,10 @@ fun AddSchedule(
     val mYear: Int
     val mMonth: Int
     val mDay: Int
+
+    var padDay: String = ""
+    var padMOnth: String = ""
+    var intMonth = 0
 
     val mCalendar = Calendar.getInstance()
 
@@ -97,13 +115,34 @@ fun AddSchedule(
     val mDateStartDate = DatePickerDialog(
         mContext,
         { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
-            startDate = "$mDayOfMonth/${mMonth+1}/$mYear"
+
+            padDay = mDayOfMonth.toString()
+            if (mDayOfMonth.toString().length == 1){
+                padDay = "0${mDayOfMonth.toString()}"
+            }
+            intMonth = mMonth + 1
+            padMOnth = intMonth.toString()
+            if (intMonth.toString().length == 1){
+                padMOnth = "0${intMonth.toString()}"
+            }
+            startDate = "$mYear-$padMOnth-${padDay}"
         }, mYear, mMonth, mDay
     )
     val mDateEndDate = DatePickerDialog(
         mContext,
         { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
-            endDate = "$mDayOfMonth/${mMonth+1}/$mYear"
+
+            padDay = mDayOfMonth.toString()
+            if (mDayOfMonth.toString().length == 1){
+                padDay = "0${mDayOfMonth.toString()}"
+            }
+            intMonth = mMonth + 1
+            padMOnth = intMonth.toString()
+            if (intMonth.toString().length == 1){
+                padMOnth = "0${intMonth.toString()}"
+            }
+
+            endDate = "$mYear-$padMOnth-${padDay}"
         }, mYear, mMonth, mDay
     )
 
@@ -124,6 +163,9 @@ fun AddSchedule(
             stringLabel = "${hourStr.padStart(2,'0')}:${minuteStr.padStart(2,'0')}"
         }, mHour, mMinute, false
     )
+    val context = LocalContext.current
+    val preferencesManager = remember { PreferencesManager(context) }
+    val username = preferencesManager.getData("username", "")
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -143,6 +185,9 @@ fun AddSchedule(
             }
         }
     }
+
+    val application = LocalContext.current.applicationContext as Application
+    val workManager = WorkManager.getInstance(application)
 
     Scaffold (
         topBar = {
@@ -183,8 +228,19 @@ fun AddSchedule(
                                     coroutineScope.launch {
                                         // save data here
                                         val addSchedUiState = viewModel.reminderUiState
-                                        addSchedUiState.reminderDetails =
-                                            ReminderDetails(title, startDate, endDate)
+
+                                        // add header data
+                                        addSchedUiState.reminderDetails = ReminderDetails(title, startDate, endDate, username)
+
+                                        // add details
+                                        val timeList = mutableListOf<AddTimeModel>()
+                                        var cnt = 1
+
+                                        timeTmpData.forEach{
+                                            timeList.add(AddTimeModel(null,title,cnt,it.time))
+                                            cnt++
+                                        }
+                                        addSchedUiState.detailTime = timeList
                                         viewModel.insertSchedule()
 
                                         message.value = "Schedule successfully added"

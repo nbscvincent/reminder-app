@@ -78,12 +78,6 @@ fun SchdulixApp (
 @Composable
 fun CheckLogin( screenViewModel: ScreenViewModel ){
     val navController: NavHostController = rememberNavController()
-    /*var isLogin = screenViewModel.checkLogin()
-    if (!isLogin){
-        MainLogin(navController, screenViewModel)
-    }else{
-        MainHomeScreen(navController, screenViewModel)
-    }*/
 
     val context = LocalContext.current
     val preferencesManager = remember { PreferencesManager(context) }
@@ -147,6 +141,9 @@ fun MainHomeScreen(
     val openDrawer: () -> Unit = { scope.launch { drawerState.open() } }
     val closeDrawer: () -> Unit = { scope.launch { drawerState.close() } }
 
+    val context = LocalContext.current
+    val preferencesManager = remember { PreferencesManager(context) }
+
     BackHandler(
         enabled = drawerState.isOpen,
     ) {
@@ -192,6 +189,24 @@ fun MainHomeScreen(
                         navController.navigate(MainScreen.AddSchedule.name)
                     }
                 )
+                NavigationDrawerItem(
+                    label = {
+                        Text(text = "Sign Out")
+                    },
+                    selected = false,
+                    onClick = {
+                        screenViewModel.unsetLogin()
+
+                        preferencesManager.saveData("login", "")
+                        preferencesManager.saveData("username", "")
+                        preferencesManager.saveData("firstName", "")
+                        preferencesManager.saveData("lastName", "")
+
+                        closeDrawer()
+
+                        navController.navigate(MainScreen.Splash.name)
+                    }
+                )
             }
         }
     ) {
@@ -230,7 +245,7 @@ fun MainHomeScreen(
                     val bid = navBackStackEntry.arguments?.getString("bid")
 
                     bid?.let {
-                        EditSchedule(navController = navController, index = bid.toInt())
+                        EditSchedule(navController = navController, index = bid.toString())
                     }
                 }
             }

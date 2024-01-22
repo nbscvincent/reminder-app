@@ -79,7 +79,6 @@ import kotlinx.coroutines.launch
 fun LoginScreen(
     navController: NavController,
     screenViewModel: ScreenViewModel,
-    //viewModel: RegistrationScreenViewModel = viewModel(factory = AppViewModelProvider.Factory)
     viewModel: LoginScreenViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     var email by remember { mutableStateOf("") }
@@ -267,14 +266,8 @@ fun LoginScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(
-                        checked = isChecked.value,
-                        onCheckedChange = { isChecked.value = it },
-                        enabled = true,
-                        colors = CheckboxDefaults.colors(Color(0xFF6562DF))
-                    )
                     Text(
-                        text = "Remember me",
+                        text = "",
                         color = Color.Black
                     )
                 }

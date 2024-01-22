@@ -17,6 +17,7 @@ data class ReminderModel(
     @PrimaryKey val title: String,
     val startDate: String,
     val endDate: String,
+    val createdBy: String,
 )
 
 @Entity(tableName = "time")
