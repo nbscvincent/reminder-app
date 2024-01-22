@@ -111,6 +111,7 @@ fun AddSchedule(
     mDay = mCalendar.get(Calendar.DAY_OF_MONTH)
     val mHour = mCalendar[Calendar.HOUR_OF_DAY]
     val mMinute = mCalendar[Calendar.MINUTE]
+    val currentDate = Calendar.getInstance()
 
     val mDateStartDate = DatePickerDialog(
         mContext,
@@ -145,9 +146,11 @@ fun AddSchedule(
             endDate = "$mYear-$padMOnth-${padDay}"
         }, mYear, mMonth, mDay
     )
+    mDateStartDate.datePicker.minDate = currentDate.timeInMillis
+    mDateEndDate.datePicker.minDate = currentDate.timeInMillis
 
-    startDate = ""
-    endDate = ""
+    //startDate = ""
+    //endDate = ""
 
     val state = rememberScrollState()
     LaunchedEffect(Unit) { state.animateScrollTo(100) }
