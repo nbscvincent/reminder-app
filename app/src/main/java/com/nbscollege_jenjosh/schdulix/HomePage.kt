@@ -7,6 +7,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.provider.CalendarContract.Colors
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -129,28 +130,26 @@ fun HomePage(
     val coroutineScope = rememberCoroutineScope()
     val schedItems by viewModel.getAllSchedule(username).collectAsState(initial = emptyList())
 
-
     /*Work Manager Start*/
     val application = LocalContext.current.applicationContext as Application
     val workManager = WorkManager.getInstance(application)
-    //val workBuilder = OneTimeWorkRequestBuilder<notificationReminder>()
-    /*val workBuilder = PeriodicWorkRequestBuilder<notificationReminder>(30,TimeUnit.SECONDS)
+    /*val workBuilder = OneTimeWorkRequestBuilder<notificationReminder>()
+    //val workBuilder = PeriodicWorkRequestBuilder<notificationReminder>(10,TimeUnit.SECONDS)
 
     workBuilder.setInputData(
         workDataOf(
             "NAME" to "HELLO",
-            "MESSAGE" to "THIS is description"
+            "MESSAGE" to "THIS IS SAMPLE"
         )
     )
 
     //val duration: Long = "82233213123L".toLong()
     //val unit: TimeUnit = TimeUnit.SECONDS
     //workBuilder.setInitialDelay(duration, unit)
-    //workBuilder.setInitialDelay(5, unit)
-    //workManager.enqueue(workBuilder.build())
-
-    workManager.enqueueUniquePeriodicWork("SAMPLE", ExistingPeriodicWorkPolicy.UPDATE, workBuilder.build())
-    */
+    workBuilder.setInitialDelay(5, TimeUnit.SECONDS)
+    workManager.enqueue(workBuilder.build())
+     */
+    //workManager.enqueueUniquePeriodicWork("S1", ExistingPeriodicWorkPolicy.UPDATE, workBuilder.build())
     /*Work Manager End*/
 
     Scaffold (
@@ -223,6 +222,8 @@ fun HomePage(
             Spacer(modifier = Modifier.height(15.dp))
             LazyColumn {
                 itemsIndexed(schedItems) { index, data ->
+                    var isExpired by remember { mutableStateOf(false) }
+
                     var formatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy")
 
                     var start = LocalDate.parse(data.startDate)
@@ -231,28 +232,18 @@ fun HomePage(
                     var dateEnd = end.format(formatter)
 
                     /*Work Manager Start*/
-
-                    /*val workBuilder = PeriodicWorkRequestBuilder<notificationReminder>(30,TimeUnit.SECONDS)
-                    workBuilder.setInputData(
-                        workDataOf(
-                            "NAME" to "HELLO",
-                            "MESSAGE" to "THIS is description"
-                        )
-                    )
-                    workManager.enqueueUniquePeriodicWork("SAMPLE", ExistingPeriodicWorkPolicy.UPDATE, workBuilder.build())
-
-                     */
-
                     val schedStart = LocalDate.parse(data.startDate)
                     val schedEnd = LocalDate.parse(data.endDate)
                     val days = ChronoUnit.DAYS.between(LocalDate.now(), schedStart)
                     val daysEnd = ChronoUnit.DAYS.between(LocalDate.now(), schedEnd)
+                    //val daysEnd = -1;
 
                     if (daysEnd < 0){
+                        isExpired = true
+
                         // kill the schedule
-
+                        workManager.cancelAllWorkByTag("${data.title}")
                     }else {
-
                         val dueDate = Calendar.getInstance()
                         val currentDate = Calendar.getInstance()
 
@@ -262,6 +253,7 @@ fun HomePage(
                         listItem.value.forEach {
                             val str = it.time.split(':')
 
+                            dueDate.set(Calendar.DAY_OF_MONTH, schedStart.dayOfMonth)
                             dueDate.set(Calendar.HOUR_OF_DAY, str[0].toInt())
                             dueDate.set(Calendar.MINUTE, str[1].toInt())
                             if (dueDate.before(currentDate)) {
@@ -269,21 +261,20 @@ fun HomePage(
                             }
                             val timeDiff = dueDate.timeInMillis - currentDate.timeInMillis
 
-                            println("SAMPLE")
-                            println("SAMPLE - ${data.title}")
-                            println("SAMPLE - ${timeDiff}")
-                            println("SAMPLE - ${it.time}")
-                            println("SAMPLE")
-
-                            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm", Locale.ENGLISH);
-                            val localDate = LocalDateTime.parse("${data.startDate} ${it.time}", formatter);
-                            val timeInMilliseconds = localDate.atOffset(ZoneOffset.UTC).toInstant().toEpochMilli();
+                            val formatter =
+                                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm", Locale.ENGLISH);
+                            val localDate =
+                                LocalDateTime.parse("${data.startDate} ${it.time}", formatter);
+                            val timeInMilliseconds =
+                                localDate.atOffset(ZoneOffset.UTC).toInstant().toEpochMilli();
 
                             if (timeDiff > 0) {
-                                /*val workBuilder = OneTimeWorkRequestBuilder<notificationReminder>()
-                                workBuilder.setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
-                                //val workBuilder = PeriodicWorkRequestBuilder<notificationReminder>(30,TimeUnit.SECONDS)
-
+                                val workBuilder = PeriodicWorkRequestBuilder<notificationReminder>(
+                                    1,
+                                    TimeUnit.DAYS
+                                )
+                                    .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
+                                    .addTag("${data.title}")
                                 workBuilder.setInputData(
                                     workDataOf(
                                         "ID" to "${it.id}1",
@@ -291,11 +282,15 @@ fun HomePage(
                                         "MESSAGE" to "This is schedule is now!"
                                     )
                                 )
-                                workManager.enqueue(workBuilder.build())*/
+                                workManager.enqueueUniquePeriodicWork(
+                                    "${it.id}1",
+                                    ExistingPeriodicWorkPolicy.KEEP,
+                                    workBuilder.build()
+                                )
                             }
                         }
-                        /*Work Manager End*/
                     }
+                    /*Work Manager End*/
 
                     ElevatedCard(
                         onClick = {
@@ -305,7 +300,7 @@ fun HomePage(
                             defaultElevation = 6.dp
                         ),
                         colors = CardDefaults.cardColors(
-                            containerColor = Color.White,
+                            containerColor = if (isExpired) Color.Red else Color.White,
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -324,11 +319,14 @@ fun HomePage(
                             ) {
                                 Text(
                                     text = data.title,
-                                    color = Color.Black,
+                                    color = if (isExpired) Color.White else Color.Black,
                                     fontWeight = FontWeight.Bold
                                 )
                                 IconButton(
                                     onClick = {
+                                        // kill the schedule
+                                        workManager.cancelAllWorkByTag("${data.title}")
+
                                         coroutineScope.launch {
                                             val schedUiState = viewModel.reminderUiState
                                             schedUiState.reminderDetails = ReminderDetails(
@@ -343,17 +341,17 @@ fun HomePage(
                                     Icon(
                                         imageVector = Icons.Filled.Delete,
                                         contentDescription = "Delete",
-                                        tint = Color.Black
+                                        tint = if (isExpired) Color.White else Color.Black,
                                     )
                                 }
                             }
                             Text(
                                 text = dateStart.toString(),
-                                color = Color.Black
+                                color = if (isExpired) Color.White else Color.Black,
                             )
                             Text(
                                 text = dateEnd.toString(),
-                                color = Color.Black
+                                color = if (isExpired) Color.White else Color.Black,
                             )
                         }
                     }

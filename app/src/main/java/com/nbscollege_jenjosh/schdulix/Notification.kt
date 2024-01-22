@@ -1,10 +1,19 @@
 package com.nbscollege_jenjosh.schdulix
 import android.annotation.SuppressLint
+import android.app.Notification.DEFAULT_ALL
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.NotificationManager.IMPORTANCE_HIGH
 import android.app.PendingIntent
+import android.app.PendingIntent.getActivity
+import android.app.job.JobInfo.PRIORITY_MAX
 import android.content.Context
+import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.graphics.Color.RED
+import android.os.Build.VERSION.SDK_INT
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.Worker
@@ -15,38 +24,49 @@ class notificationReminder(
     context: Context,
     workerParameters: WorkerParameters
 ): Worker(context, workerParameters){
-    public var notificationId = 17
+    var notificationId = 17
 
     @SuppressLint("MissingPermission")
     override fun doWork(): Result {
-        val intent = Intent(applicationContext, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(
-            applicationContext, 0, intent, PendingIntent.FLAG_IMMUTABLE
-        )
 
+        // notification here
         val headerID =  inputData.getString("ID")
         val headerName =  inputData.getString("NAME")
         val headerMessage =  inputData.getString("MESSAGE")
 
-        val channelId = "Schedulix_12"
-        if (headerID != null) {
-            notificationId = headerID.toInt()
-        }
+        val notifId = headerID
+        val notifChannel = "SCH_CHANNEL"
+        val notifName = "SCH_CHANNEL_NAME"
+        val intent = Intent(applicationContext, MainActivity::class.java)
+        intent.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK
+        intent.putExtra(notifId, notificationId)
 
-        val builder = NotificationCompat.Builder(applicationContext, channelId)
+        val notificationManager =
+            applicationContext.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        val pendingIntent = getActivity(applicationContext, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
+        val notification = NotificationCompat.Builder(applicationContext, notifChannel)
             .setSmallIcon(R.drawable.schdulix_logo)
-            .setContentTitle(headerName)
-            .setContentText(headerMessage)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(headerMessage))
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
+            .setContentTitle(headerName).setContentText(headerMessage)
+            .setDefaults(DEFAULT_ALL).setContentIntent(pendingIntent).setAutoCancel(true)
 
-        with(NotificationManagerCompat.from(applicationContext)) {
-            notify(notificationId, builder.build())
+        notification.priority = PRIORITY_MAX
+
+        if (SDK_INT >= 0) {
+            notification.setChannelId(notifChannel)
+
+            val channel = NotificationChannel(notifChannel, notifName, IMPORTANCE_HIGH)
+
+            channel.enableLights(true)
+            channel.lightColor = RED
+            channel.enableVibration(true)
+            channel.vibrationPattern = longArrayOf(100, 200, 300, 400, 500, 400, 300, 200, 400)
+            //channel.setSound(ringtoneManager, audioAttributes)
+            notificationManager.createNotificationChannel(channel)
         }
+        notificationManager.notify(notificationId, notification.build())
+        // end notification here
+
         return Result.success()
     }
 }
