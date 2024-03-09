@@ -11,6 +11,7 @@ import com.nbscollege_jenjosh.schdulix.model.UserProfile
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
+import timber.log.Timber
 
 class LoginScreenViewModel(private val usersRepository: UserRepository) : ViewModel() {
 
@@ -27,12 +28,11 @@ class LoginScreenViewModel(private val usersRepository: UserRepository) : ViewMo
 
         if (validateInput()) {
             //flow = usersRepository.getUserPasswordStream(userDetails.username, userDetails.password)
-            /*try {
+            try {
                 flow = usersRepository.getUserPasswordStream(userDetails.username, userDetails.password)
-            } on Exception catch(e){
-
+            } catch (e: Exception){
+                Timber.i("SAMPLE $e")
             }
-             */
         }
         return flow
     }
