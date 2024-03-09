@@ -26,7 +26,13 @@ class LoginScreenViewModel(private val usersRepository: UserRepository) : ViewMo
         var flow : Flow<UserProfile?>? = null
 
         if (validateInput()) {
-            flow = usersRepository.getUserPasswordStream(userDetails.username, userDetails.password)
+            //flow = usersRepository.getUserPasswordStream(userDetails.username, userDetails.password)
+            /*try {
+                flow = usersRepository.getUserPasswordStream(userDetails.username, userDetails.password)
+            } on Exception catch(e){
+
+            }
+             */
         }
         return flow
     }

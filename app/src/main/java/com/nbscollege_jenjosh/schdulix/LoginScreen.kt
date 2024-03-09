@@ -73,6 +73,7 @@ import com.nbscollege_jenjosh.schdulix.ui.theme.user.UserDetails
 import com.nbscollege_jenjosh.schdulix.viewmodel.ScreenViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -112,6 +113,8 @@ fun LoginScreen(
                 ) {
                     Button(
                         onClick = {
+                            Timber.i("SAmple")
+                            Timber.d("SAmple")
                             coroutineScope.launch {
                                 val loginState = viewModel.userUiState
                                 loginState.userDetails = UserDetails(email, password)

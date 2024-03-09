@@ -17,7 +17,7 @@ interface UserRepository {
     /**
      * Retrieve an user and password.
      */
-    fun getUserPasswordStream(username: String, password:String): Flow<UserProfile?>
+    suspend fun getUserPasswordStream(username: String, password:String): Flow<UserProfile?>
 
     /**
      * Insert user in the data source

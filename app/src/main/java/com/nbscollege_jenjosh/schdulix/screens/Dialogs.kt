@@ -1,5 +1,9 @@
 package com.nbscollege_jenjosh.schdulix.screens
 
+import android.app.Dialog
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -7,6 +11,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
 
@@ -60,12 +65,12 @@ fun loginAlert(
                     Text("OK")
                 }
             },
-            title = {
-                Text("")
-            },
             text = {
                 Text(text = "Invalid Username and Password!")
             },
+            icon = {
+                Icon(imageVector = Icons.Filled.Info , contentDescription = "")
+            }
         )
     }
 }
@@ -94,6 +99,9 @@ fun registrationAlert(
             text = {
                 Text(text = message.value)
             },
+            icon = {
+                Icon(imageVector = Icons.Filled.Info , contentDescription = "")
+            }
         )
     }
 }

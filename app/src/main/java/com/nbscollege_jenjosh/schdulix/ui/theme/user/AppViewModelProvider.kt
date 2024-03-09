@@ -16,7 +16,7 @@ object AppViewModelProvider {
         }
         initializer {
             LoginScreenViewModel(
-                schdulixApplication().container.userRepository
+                schdulixApplication().container.userRepositoryOnline
             )
         }
         initializer {
