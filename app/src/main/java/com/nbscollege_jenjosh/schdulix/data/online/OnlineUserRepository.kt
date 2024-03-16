@@ -12,12 +12,21 @@ import kotlinx.coroutines.flow.Flow
 
 import io.ktor.client.call.body
 import io.ktor.client.request.accept
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
+import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.client.request.parameter
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
 import io.ktor.client.request.url
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
+import io.ktor.client.statement.readText
 import io.ktor.client.utils.EmptyContent.contentType
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import timber.log.Timber
 
 class OnlineUserRepository(private val ktorClient: HttpClient = KtorClient() ) : UserRepository {
     override fun getAllUsersStream(): Flow<List<UserProfile>> {
@@ -27,17 +36,34 @@ class OnlineUserRepository(private val ktorClient: HttpClient = KtorClient() ) :
     override fun getUserStream(id: String): Flow<UserProfile?>  { TODO("Not yet implemented") }
 
     // login
-    override suspend fun getUserPasswordStream(username: String, password: String): Flow<UserProfile?> = ktorClient.request(
+    /*override suspend fun getUserPasswordStream(username: String, password: String): Flow<UserProfile?> = ktorClient.request(
         HttpRoutes.login) {
 
         val loginRequest  = "{ \"username\" : \"jen@gmail.com\", \"password\": \"jen\" }"
 
-        method = HttpMethod.Get
+        method = HttpMethod.Post
         url(HttpRoutes.login)
         contentType(ContentType.Application.Json)
         accept(ContentType.Application.Json)
         setBody(loginRequest)
-    }.body()
+    }.body()*/
+    override suspend fun getUserPasswordStream(username: String, password: String): Flow<UserProfile?> {
+        var cl = ktorClient.request(
+            HttpRoutes.login
+        ) {
+            method = HttpMethod.Post
+            url(HttpRoutes.login)
+            contentType(ContentType.Application.Json)
+            accept(ContentType.Application.Json)
+            setBody(MultiPartFormDataContent(formData{
+                append("username", "jen@gmail.com")
+                append("password", "jen")
+            }))
+        }
+        //Timber.i("SAMPLE HERE " + cl.body<Any?>().toString())
+        //return cl.body()
+        return cl.body()
+    }
         // end login
     override suspend fun insertUser(user: UserProfile) { TODO("Not yet implemented") }
     override suspend fun deleteUser(user: UserProfile) { TODO("Not yet implemented") }

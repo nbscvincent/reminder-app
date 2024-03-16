@@ -113,8 +113,6 @@ fun LoginScreen(
                 ) {
                     Button(
                         onClick = {
-                            Timber.i("SAmple")
-                            Timber.d("SAmple")
                             coroutineScope.launch {
                                 val loginState = viewModel.userUiState
                                 loginState.userDetails = UserDetails(email, password)

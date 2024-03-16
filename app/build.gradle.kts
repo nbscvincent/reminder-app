@@ -2,8 +2,11 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
+    id("kotlin-parcelize")
+    id("kotlinx-serialization")
+    id("org.jetbrains.kotlin.plugin.serialization")
+    //id("org.jetbrains.kotlin.plugin.serialization") version "1.8.21"
 }
-
 android {
     namespace = "com.nbscollege_jenjosh.schdulix"
     compileSdk = 34
@@ -107,5 +110,5 @@ dependencies {
     implementation ("androidx.hilt:hilt-navigation-compose:1.0.0")
     implementation ("com.google.dagger:dagger-android-support:2.45")
     implementation( "io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
-    implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+    implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 }

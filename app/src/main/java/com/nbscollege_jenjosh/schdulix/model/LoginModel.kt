@@ -4,11 +4,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 import kotlin.system.exitProcess
 
 data class LoginRequest( val username: String, val password: String )
 data class LoginResponse( val username: String, val password: String )
 
+@Suppress("PLUGIN_IS_NOT_ENABLED")
+@Serializable
 @Entity(tableName = "user")
 data class UserProfile(
     @PrimaryKey val username: String,
