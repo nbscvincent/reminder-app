@@ -25,12 +25,12 @@ fun KtorClient(): HttpClient {
             level = LogLevel.ALL
         }
         install(ContentNegotiation) {
-            json(Json {
+            json( Json {
                 prettyPrint = true
                 isLenient = true
                 encodeDefaults = true
                 ignoreUnknownKeys = true
-                explicitNulls = true
+                //explicitNulls = false
             })
         }
         install(HttpRedirect) {

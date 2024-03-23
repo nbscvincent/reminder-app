@@ -72,7 +72,10 @@ import com.nbscollege_jenjosh.schdulix.ui.theme.user.RegistrationScreenViewModel
 import com.nbscollege_jenjosh.schdulix.ui.theme.user.UserDetails
 import com.nbscollege_jenjosh.schdulix.viewmodel.ScreenViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -82,8 +85,8 @@ fun LoginScreen(
     screenViewModel: ScreenViewModel,
     viewModel: LoginScreenViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("1") }
+    var password by remember { mutableStateOf("1") }
     val isChecked = remember { mutableStateOf(false) }
     var passwordShow: Boolean by remember { mutableStateOf(false) }
     val openDialog = remember { mutableStateOf(false) }
@@ -119,15 +122,17 @@ fun LoginScreen(
                                 val flow : Flow<UserProfile?>? = viewModel.selectUser()
 
                                 if (flow != null) {
-                                    flow.collect{
+                                    flow.collect {
+
                                         if (it != null) {
                                             screenViewModel.setLogin()
-                                            navController.navigate(MainScreen.Splash.name)
 
                                             preferencesManager.saveData("login", "true")
                                             preferencesManager.saveData("username", it.username)
                                             preferencesManager.saveData("firstName", it.firstName)
                                             preferencesManager.saveData("lastName", it.lastName)
+
+                                            navController.navigate(MainScreen.Splash.name)
                                         }else{
                                             openDialog.value = true
                                         }
