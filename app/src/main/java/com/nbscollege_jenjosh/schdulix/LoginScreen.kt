@@ -85,8 +85,8 @@ fun LoginScreen(
     screenViewModel: ScreenViewModel,
     viewModel: LoginScreenViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    var email by remember { mutableStateOf("1") }
-    var password by remember { mutableStateOf("1") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     val isChecked = remember { mutableStateOf(false) }
     var passwordShow: Boolean by remember { mutableStateOf(false) }
     val openDialog = remember { mutableStateOf(false) }
@@ -125,14 +125,21 @@ fun LoginScreen(
                                     flow.collect {
 
                                         if (it != null) {
-                                            screenViewModel.setLogin()
+                                            if (it.username.isEmpty()){
+                                                openDialog.value = true
+                                            }else {
+                                                screenViewModel.setLogin()
 
-                                            preferencesManager.saveData("login", "true")
-                                            preferencesManager.saveData("username", it.username)
-                                            preferencesManager.saveData("firstName", it.firstName)
-                                            preferencesManager.saveData("lastName", it.lastName)
+                                                preferencesManager.saveData("login", "true")
+                                                preferencesManager.saveData("username", it.username)
+                                                preferencesManager.saveData(
+                                                    "firstName",
+                                                    it.firstName
+                                                )
+                                                preferencesManager.saveData("lastName", it.lastName)
 
-                                            navController.navigate(MainScreen.Splash.name)
+                                                navController.navigate(MainScreen.Splash.name)
+                                            }
                                         }else{
                                             openDialog.value = true
                                         }

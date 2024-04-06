@@ -212,23 +212,24 @@ fun RegistrationScreen(
                             // check if user is existing
                             var saveData = 'N'
                             val check = viewModel.selectUser(username)
-                            check.collect {
-                                Log.i("loginState", it.toString())
-                                if (it == null) {
-                                    saveData = 'Y'
-                                }
-                                if (saveData == 'Y') {
-                                    message.value = "Successfully registered"
-                                    showDialog.value = true
-                                    isSuccess.value = true
+                            if (check != null) {
+                                check.collect {
+                                    if (it == null) {
+                                        saveData = 'Y'
+                                    }
+                                    if (saveData == 'Y') {
+                                        message.value = "Successfully registered"
+                                        showDialog.value = true
+                                        isSuccess.value = true
 
-                                    val userUiState = viewModel.userUiState
-                                    userUiState.userDetails =
-                                        UserDetails(username, password, firstName, lastName)
-                                    viewModel.saveUser()
-                                } else {
-                                    message.value = "User already exist"
-                                    showDialog.value = true
+                                        val userUiState = viewModel.userUiState
+                                        userUiState.userDetails =
+                                            UserDetails(username, password, firstName, lastName)
+                                        viewModel.saveUser()
+                                    } else {
+                                        message.value = "User already exist"
+                                        showDialog.value = true
+                                    }
                                 }
                             }
                         }

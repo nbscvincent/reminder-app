@@ -36,24 +36,25 @@ class OnlineUserRepository(private val ktorClient: HttpClient = KtorClient() ) :
         TODO("Not yet implemented")
     }
 
-    override fun getUserStream(id: String): Flow<UserProfile?>  { TODO("Not yet implemented") }
-
-    // login
-    /*override suspend fun getUserPasswordStream(username: String, password: String): Flow<UserProfile?> = flow {
-        ktorClient.request(
+    override suspend fun getUserStream(id: String): Flow<UserProfile?>  {
+        val cl = ktorClient.request(
             HttpRoutes.login
         ) {
-
             method = HttpMethod.Post
             url(HttpRoutes.login)
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             setBody(MultiPartFormDataContent(formData {
-                append("username", "jen@gmail.com")
-                append("password", "jen")
+                append("type", "check_login")
+                append("username", id)
             }))
-        }.body()
-    }*/
+        }
+        return flow {
+            emit(cl.body())
+        }
+    }
+
+    // login
     override suspend fun getUserPasswordStream(username: String, password: String): Flow<UserProfile?> {
         val cl = ktorClient.request(
             HttpRoutes.login
@@ -63,6 +64,7 @@ class OnlineUserRepository(private val ktorClient: HttpClient = KtorClient() ) :
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             setBody(MultiPartFormDataContent(formData {
+                append("type", "login")
                 append("username", username)
                 append("password", password)
             }))

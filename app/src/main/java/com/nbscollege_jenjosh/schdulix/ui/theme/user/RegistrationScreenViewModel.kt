@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.nbscollege_jenjosh.schdulix.data.repository.UserRepository
 import com.nbscollege_jenjosh.schdulix.model.UserProfile
 import kotlinx.coroutines.flow.Flow
+import timber.log.Timber
 
 class RegistrationScreenViewModel(private val usersRepository: UserRepository) : ViewModel() {
     /**
@@ -35,8 +36,19 @@ class RegistrationScreenViewModel(private val usersRepository: UserRepository) :
             username.isNotBlank() && password.isNotBlank()
         }
     }
-    fun selectUser(username:String) : Flow<UserProfile?> {
-        return usersRepository.getUserStream(username)
+    suspend fun selectUser(username:String) : Flow<UserProfile?>? {
+        //return usersRepository.getUserStream(username)
+        var flow : Flow<UserProfile?>? = null
+
+        if (validateInput()) {
+            //flow = usersRepository.getUserPasswordStream(userDetails.username, userDetails.password)
+            try {
+                flow = usersRepository.getUserStream(username)
+            } catch (e: Exception){
+                Timber.i("SAMPLE $e")
+            }
+        }
+        return flow
     }
 }
 
