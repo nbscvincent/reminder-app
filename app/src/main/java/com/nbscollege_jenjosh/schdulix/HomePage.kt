@@ -62,6 +62,7 @@ import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -93,6 +94,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
+import com.nbscollege_jenjosh.schdulix.model.ReminderModel
 import com.nbscollege_jenjosh.schdulix.model.reminderData
 import com.nbscollege_jenjosh.schdulix.model.timeData
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
@@ -101,8 +103,10 @@ import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ReminderDetails
 import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ScheduleScreenViewModel
 import com.nbscollege_jenjosh.schdulix.ui.theme.user.AppViewModelProvider
 import com.nbscollege_jenjosh.schdulix.viewmodel.ScreenViewModel
+import io.ktor.client.call.body
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -128,7 +132,23 @@ fun HomePage(
     val username = preferencesManager.getData("username", "")
     
     val coroutineScope = rememberCoroutineScope()
-    val schedItems by viewModel.getAllSchedule(username).collectAsState(initial = emptyList())
+    //val schedItems by viewModel.getAllSchedule(username).collectAsState(initial = emptyList())
+
+    Timber.i("SAMPLE HERE 1")
+    coroutineScope.launch {
+        Timber.i("SAMPLE HERE 2")
+        viewModel.fetchSchedule(username)
+        Timber.i("SAMPLE HERE 3")
+    }
+    //var schedItems = emptyList<ReminderModel>()
+
+    Timber.i("SAMPLE HERE 4")
+    val schedItems by viewModel.scheduleList.collectAsState(initial = emptyList<ReminderModel>())
+    Timber.i("SAMPLE HERE 5")
+
+    /*coroutineScope.launch {
+        viewModel.fetchSchedule(username)
+    }*/
 
     /*Work Manager Start*/
     val application = LocalContext.current.applicationContext as Application

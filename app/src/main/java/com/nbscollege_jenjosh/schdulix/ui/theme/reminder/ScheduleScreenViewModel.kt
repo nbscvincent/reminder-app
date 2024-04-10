@@ -1,5 +1,6 @@
 package com.nbscollege_jenjosh.schdulix.ui.theme.reminder
 
+import android.content.SharedPreferences
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -8,6 +9,10 @@ import com.nbscollege_jenjosh.schdulix.data.repository.ScheduleRepository
 import com.nbscollege_jenjosh.schdulix.model.AddTimeModel
 import com.nbscollege_jenjosh.schdulix.model.ReminderModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.emptyFlow
+import timber.log.Timber
 
 class ScheduleScreenViewModel(private val scheduleRepository: ScheduleRepository ): ViewModel() {
     /**
@@ -16,6 +21,21 @@ class ScheduleScreenViewModel(private val scheduleRepository: ScheduleRepository
     var reminderUiState by mutableStateOf(ScheduleUiState())
         private set
 
+    //private val _scheduleList = MutableStateFlow<List<ReminderModel>>(emptyList())
+    var scheduleList: Flow<List<ReminderModel>> = emptyFlow<List<ReminderModel>>()
+
+    /*init {
+        fetchSchedule()
+    }*/
+
+    suspend fun fetchSchedule(username: String) {
+        try {
+            scheduleList = scheduleRepository.getAllScheduleStream(username)
+        } catch (e: Exception){
+            Timber.i("SAMPLE HERE $e")
+        }
+
+    }
     suspend fun insertSchedule() {
         if (validateInput()) {
             scheduleRepository.insertSchedule(reminderUiState.reminderDetails.toReminder())
@@ -38,10 +58,10 @@ class ScheduleScreenViewModel(private val scheduleRepository: ScheduleRepository
         return scheduleRepository.getScheduleStream(title)
     }
 
-    fun getAllSchedule(username: String) : Flow<List<ReminderModel>>{
+    suspend fun getAllSchedule(username: String) : Flow<List<ReminderModel>>{
         return scheduleRepository.getAllScheduleStream(username)
     }
-    val schedItems = scheduleRepository.getAllScheduleStream()
+    //val schedItems = scheduleRepository.getAllScheduleStream()
 
     private fun validateInput(uiState: ReminderDetails = reminderUiState.reminderDetails): Boolean {
         return with(uiState) {

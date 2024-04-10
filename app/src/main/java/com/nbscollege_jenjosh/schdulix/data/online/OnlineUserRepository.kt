@@ -91,7 +91,6 @@ class OnlineUserRepository(private val ktorClient: HttpClient = KtorClient() ) :
                 append("lastName", user.lastName)
             }))
         }
-            Timber.i("SAMPLE " + cl.body())
     }
     override suspend fun deleteUser(user: UserProfile) { TODO("Not yet implemented") }
     override suspend fun updateUser(user: UserProfile) { TODO("Not yet implemented") }

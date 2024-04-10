@@ -8,7 +8,7 @@ import com.nbscollege_jenjosh.schdulix.model.UserProfile
 import kotlinx.coroutines.flow.Flow
 
 class OfflineScheduleRepository(private val reminderDao: ReminderModelDao) : ScheduleRepository {
-    override fun getAllScheduleStream(username: String): Flow<List<ReminderModel>> = reminderDao.getAllSchedule(username)
+    override suspend fun getAllScheduleStream(username: String): Flow<List<ReminderModel>> = reminderDao.getAllSchedule(username)
     override suspend fun insertSchedule(schedule: ReminderModel) = reminderDao.insert(schedule)
     override suspend fun insertScheduleTmp(time: AddTimeTmpModel) {
         TODO("Not yet implemented")

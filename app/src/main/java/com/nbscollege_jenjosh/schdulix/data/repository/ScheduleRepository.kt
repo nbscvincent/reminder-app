@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface ScheduleRepository {
 
-    fun getAllScheduleStream(username: String = ""): Flow<List<ReminderModel>>
+    suspend fun getAllScheduleStream(username: String = ""): Flow<List<ReminderModel>>
     suspend fun insertSchedule(schedule: ReminderModel)
     suspend fun insertScheduleTmp(time: AddTimeTmpModel)
     suspend fun deleteSchedule(user: ReminderModel)

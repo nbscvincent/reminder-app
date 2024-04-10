@@ -22,7 +22,8 @@ object AppViewModelProvider {
         }
         initializer {
             ScheduleScreenViewModel(
-                schdulixApplication().container.timeTmp
+                //schdulixApplication().container.timeTmp
+                schdulixApplication().container.timeTmpOnline
             )
         }
     }
