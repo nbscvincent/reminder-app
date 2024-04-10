@@ -11,7 +11,8 @@ object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
             RegistrationScreenViewModel(
-                schdulixApplication().container.userRepository
+                //schdulixApplication().container.userRepository
+                schdulixApplication().container.userRepositoryOnline
             )
         }
         initializer {

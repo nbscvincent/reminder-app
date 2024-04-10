@@ -49,6 +49,7 @@ class OnlineUserRepository(private val ktorClient: HttpClient = KtorClient() ) :
                 append("username", id)
             }))
         }
+
         return flow {
             emit(cl.body())
         }
@@ -74,7 +75,24 @@ class OnlineUserRepository(private val ktorClient: HttpClient = KtorClient() ) :
         }
     }
         // end login
-    override suspend fun insertUser(user: UserProfile) { TODO("Not yet implemented") }
+    override suspend fun insertUser(user: UserProfile) {
+        val cl = ktorClient.request(
+            HttpRoutes.login
+        ) {
+            method = HttpMethod.Post
+            url(HttpRoutes.login)
+            contentType(ContentType.Application.Json)
+            accept(ContentType.Application.Json)
+            setBody(MultiPartFormDataContent(formData {
+                append("type", "save_user")
+                append("username", user.username)
+                append("password", user.password)
+                append("firstName", user.firstName)
+                append("lastName", user.lastName)
+            }))
+        }
+            Timber.i("SAMPLE " + cl.body())
+    }
     override suspend fun deleteUser(user: UserProfile) { TODO("Not yet implemented") }
     override suspend fun updateUser(user: UserProfile) { TODO("Not yet implemented") }
 }

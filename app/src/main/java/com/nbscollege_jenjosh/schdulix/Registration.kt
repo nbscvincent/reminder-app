@@ -55,6 +55,7 @@ import com.nbscollege_jenjosh.schdulix.ui.theme.user.RegistrationScreenViewModel
 import com.nbscollege_jenjosh.schdulix.ui.theme.user.UserDetails
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -214,9 +215,16 @@ fun RegistrationScreen(
                             val check = viewModel.selectUser(username)
                             if (check != null) {
                                 check.collect {
+
+                                    Timber.i("SAMPLE $it")
                                     if (it == null) {
                                         saveData = 'Y'
+                                    }else{
+                                        if (it.username.isEmpty()){
+                                            saveData = 'Y'
+                                        }
                                     }
+
                                     if (saveData == 'Y') {
                                         message.value = "Successfully registered"
                                         showDialog.value = true

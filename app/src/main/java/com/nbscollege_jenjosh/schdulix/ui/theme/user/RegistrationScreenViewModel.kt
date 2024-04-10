@@ -40,13 +40,11 @@ class RegistrationScreenViewModel(private val usersRepository: UserRepository) :
         //return usersRepository.getUserStream(username)
         var flow : Flow<UserProfile?>? = null
 
-        if (validateInput()) {
-            //flow = usersRepository.getUserPasswordStream(userDetails.username, userDetails.password)
-            try {
-                flow = usersRepository.getUserStream(username)
-            } catch (e: Exception){
-                Timber.i("SAMPLE $e")
-            }
+        //flow = usersRepository.getUserPasswordStream(userDetails.username, userDetails.password)
+        try {
+            flow = usersRepository.getUserStream(username)
+        } catch (e: Exception){
+            Timber.i("SAMPLE $e")
         }
         return flow
     }
