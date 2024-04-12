@@ -94,9 +94,11 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
+import com.nbscollege_jenjosh.schdulix.model.AddTimeModel
 import com.nbscollege_jenjosh.schdulix.model.ReminderModel
 import com.nbscollege_jenjosh.schdulix.model.reminderData
 import com.nbscollege_jenjosh.schdulix.model.timeData
+import com.nbscollege_jenjosh.schdulix.model.timeTmpData
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
 import com.nbscollege_jenjosh.schdulix.preferences.PreferencesManager
 import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ReminderDetails
@@ -104,6 +106,7 @@ import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ScheduleScreenViewModel
 import com.nbscollege_jenjosh.schdulix.ui.theme.user.AppViewModelProvider
 import com.nbscollege_jenjosh.schdulix.viewmodel.ScreenViewModel
 import io.ktor.client.call.body
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -126,7 +129,7 @@ fun HomePage(
     drawerState: DrawerState,
     viewModel: ScheduleScreenViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-
+    timeTmpData.clear()
     val context = LocalContext.current
     val preferencesManager = remember { PreferencesManager(context) }
     val username = preferencesManager.getData("username", "")
@@ -134,21 +137,10 @@ fun HomePage(
     val coroutineScope = rememberCoroutineScope()
     //val schedItems by viewModel.getAllSchedule(username).collectAsState(initial = emptyList())
 
-    Timber.i("SAMPLE HERE 1")
     coroutineScope.launch {
-        Timber.i("SAMPLE HERE 2")
         viewModel.fetchSchedule(username)
-        Timber.i("SAMPLE HERE 3")
     }
-    //var schedItems = emptyList<ReminderModel>()
-
-    Timber.i("SAMPLE HERE 4")
     val schedItems by viewModel.scheduleList.collectAsState(initial = emptyList<ReminderModel>())
-    Timber.i("SAMPLE HERE 5")
-
-    /*coroutineScope.launch {
-        viewModel.fetchSchedule(username)
-    }*/
 
     /*Work Manager Start*/
     val application = LocalContext.current.applicationContext as Application
@@ -268,8 +260,11 @@ fun HomePage(
                         val currentDate = Calendar.getInstance()
 
                         // select the details here
-                        val listItem = viewModel.getAllScheduleDtl(data.title)
-                            .collectAsState(initial = emptyList())
+                        //val listItem = viewModel.getAllScheduleDtl(username, data.title).collectAsState(initial = emptyList())
+                        coroutineScope.launch {
+                            viewModel.fetchScheduleDtl(username,data.title)
+                        }
+                        val listItem = viewModel.scheduleListDtl.collectAsState(initial = emptyList())
                         listItem.value.forEach {
                             val str = it.time.split(':')
 
@@ -346,7 +341,6 @@ fun HomePage(
                                     onClick = {
                                         // kill the schedule
                                         workManager.cancelAllWorkByTag("${data.title}")
-
                                         coroutineScope.launch {
                                             val schedUiState = viewModel.reminderUiState
                                             schedUiState.reminderDetails = ReminderDetails(
@@ -354,7 +348,7 @@ fun HomePage(
                                                 data.startDate,
                                                 data.endDate
                                             )
-                                            viewModel.deleteSchedule()
+                                            viewModel.deleteSchedule(username,data.title)
                                         }
                                     }
                                 ) {

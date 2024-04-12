@@ -128,11 +128,16 @@ fun EditSchedule(
         }, mHour, mMinute, false
     )
 
-    var listItem = viewModel.getAllScheduleDtl(index).collectAsState(initial = emptyList())
+    //var listItem = viewModel.getAllScheduleDtl(index).collectAsState(initial = emptyList())
 
     val context = LocalContext.current
     val preferencesManager = remember { PreferencesManager(context) }
     val username = preferencesManager.getData("username", "")
+
+    coroutineScope.launch {
+        viewModel.fetchScheduleDtl(username,index)
+    }
+    val listItem = viewModel.scheduleListDtl.collectAsState(initial = emptyList())
 
     // select all the details here
     coroutineScope.launch {

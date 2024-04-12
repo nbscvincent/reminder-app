@@ -24,12 +24,13 @@ import io.ktor.http.contentType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import timber.log.Timber
 
 class OnlineScheduleRepository(private val ktorClient: HttpClient = KtorClient()) :
     ScheduleRepository {
     override suspend fun getAllScheduleStream(username: String): Flow<List<ReminderModel>> {
-        Timber.i("SAMPLE STREAM")
         val cl = ktorClient.request(
             HttpRoutes.login
         ) {
@@ -42,24 +43,49 @@ class OnlineScheduleRepository(private val ktorClient: HttpClient = KtorClient()
                 append("username", username)
             }))
         }
-        Timber.i("SAMPLE STREAM ${cl.bodyAsText()}")
-
         val response = cl.body<ResponseAPI>()
         return flow {
             emit(response.data)
         }
     }
 
-    override suspend fun insertSchedule(schedule: ReminderModel) {
-        TODO("Not yet implemented")
+    override suspend fun insertSchedule(schedule: ReminderModel, scheduledtl: List<AddTimeModel>):ResponseAPIDefault {
+        val cl = ktorClient.request(
+            HttpRoutes.login
+        ) {
+            method = HttpMethod.Post
+            url(HttpRoutes.login)
+            contentType(ContentType.Application.Json)
+            accept(ContentType.Application.Json)
+            setBody(MultiPartFormDataContent(formData {
+                append("type", "save_schedule")
+                append("schedule_head", Json.encodeToString(schedule))
+                append("schedule_dtl", Json.encodeToString(scheduledtl))
+            }))
+        }
+        val response = cl.body<ResponseAPIDefault>()
+        return response
     }
 
     override suspend fun insertScheduleTmp(time: AddTimeTmpModel) {
         TODO("Not yet implemented")
     }
 
-    override suspend fun deleteSchedule(user: ReminderModel) {
-        TODO("Not yet implemented")
+    override suspend fun deleteSchedule(username: String, title: String) {
+        val cl = ktorClient.request(
+            HttpRoutes.login
+        ) {
+            method = HttpMethod.Post
+            url(HttpRoutes.login)
+            contentType(ContentType.Application.Json)
+            accept(ContentType.Application.Json)
+            setBody(MultiPartFormDataContent(formData {
+                append("type", "delete_schedule")
+                append("username", username)
+                append("title", title)
+            }))
+        }
+        val response = cl.body<ResponseAPIDefault>()
     }
 
     override suspend fun updateSchedule(schedule: ReminderModel) {
@@ -86,8 +112,24 @@ class OnlineScheduleRepository(private val ktorClient: HttpClient = KtorClient()
         TODO("Not yet implemented")
     }
 
-    override fun getAllScheduleDtl(title: String): Flow<List<AddTimeModel>> {
-        TODO("Not yet implemented")
+    override suspend fun getAllScheduleDtl(username: String, title: String): Flow<List<AddTimeModel>> {
+        val cl = ktorClient.request(
+            HttpRoutes.login
+        ) {
+            method = HttpMethod.Post
+            url(HttpRoutes.login)
+            contentType(ContentType.Application.Json)
+            accept(ContentType.Application.Json)
+            setBody(MultiPartFormDataContent(formData {
+                append("type", "get_schedule_dtl")
+                append("username", username)
+                append("title", title)
+            }))
+        }
+        val response = cl.body<ResponseAPIDtl>()
+        return flow {
+            emit(response.data)
+        }
     }
 
 }
@@ -97,4 +139,16 @@ data class ResponseAPI(
     val flag: Int,
     val message: String,
     val data: List<ReminderModel>
+)
+@Serializable
+data class ResponseAPIDefault(
+    val flag: Int,
+    val message: String,
+)
+
+@Serializable
+data class ResponseAPIDtl(
+    val flag: Int,
+    val message: String,
+    val data: List<AddTimeModel>
 )
