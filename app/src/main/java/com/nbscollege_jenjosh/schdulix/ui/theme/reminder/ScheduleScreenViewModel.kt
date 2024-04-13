@@ -53,20 +53,33 @@ class ScheduleScreenViewModel(private val scheduleRepository: ScheduleRepository
         }
         return response
     }
-    suspend fun updateSchedule() {
+    suspend fun updateSchedule() : ResponseAPIDefault? {
+        var response : ResponseAPIDefault? = null
         if (validateInput()) {
-            scheduleRepository.updateSchedule(reminderUiState.reminderDetails.toReminder())
+            //scheduleRepository.updateSchedule(reminderUiState.reminderDetails.toReminder())
+            try {
+                response = scheduleRepository.updateSchedule(reminderUiState.reminderDetails.toReminder())
+            } catch (e: Exception){
+                Timber.i("SAMPLE HERE $e")
+            }
         }
+        return response
     }
 
-    suspend fun insertScheduleDetail() {
+    suspend fun insertScheduleDetail(username: String) {
         if (validateInputDtl()) {
-            scheduleRepository.insertScheduleDtl(reminderUiState.addSchedLine.toReminder())
+            //scheduleRepository.insertScheduleDtl(username, reminderUiState.addSchedLine.toReminder())
+
+            try {
+                scheduleRepository.insertScheduleDtl(username, reminderUiState.addSchedLine.toReminder())
+            } catch (e: Exception){
+                Timber.i("SAMPLE HERE $e")
+            }
         }
     }
 
-    fun getSchedule(title: String): Flow<ReminderModel> {
-        return scheduleRepository.getScheduleStream(title)
+    suspend fun getSchedule(username: String, title: String): Flow<ReminderModel> {
+        return scheduleRepository.getScheduleStream(username, title)
     }
 
     suspend fun getAllSchedule(username: String) : Flow<List<ReminderModel>>{
@@ -99,8 +112,8 @@ class ScheduleScreenViewModel(private val scheduleRepository: ScheduleRepository
         return scheduleRepository.getAllScheduleDtl(username, title)
     }
 
-    suspend fun deleteScheduleDtl(){
-        scheduleRepository.deleteScheduleDtl(reminderUiState.addSchedLine.id)
+    suspend fun deleteScheduleDtl(username: String){
+        scheduleRepository.deleteScheduleDtl(username, reminderUiState.addSchedLine.title,reminderUiState.addSchedLine.line)
     }
 
 }

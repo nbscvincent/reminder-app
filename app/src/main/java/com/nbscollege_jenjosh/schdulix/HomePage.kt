@@ -63,6 +63,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -137,7 +138,10 @@ fun HomePage(
     val coroutineScope = rememberCoroutineScope()
     //val schedItems by viewModel.getAllSchedule(username).collectAsState(initial = emptyList())
 
-    coroutineScope.launch {
+    /*coroutineScope.launch {
+        viewModel.fetchSchedule(username)
+    }*/
+    LaunchedEffect(Unit){
         viewModel.fetchSchedule(username)
     }
     val schedItems by viewModel.scheduleList.collectAsState(initial = emptyList<ReminderModel>())
@@ -222,15 +226,35 @@ fun HomePage(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Spacer(modifier = Modifier.height(15.dp))
-            Text(
-                text = "My Schdulix",
-                fontWeight = FontWeight.Bold,
-                fontSize = 30.sp,
-                color = Color(0xFF6562DF),
+            Row(
                 modifier = Modifier
-                    .align(Alignment.Start)
-                    .padding(start = 25.dp, end = 25.dp)
-            )
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "My Schdulix",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 30.sp,
+                    color = Color(0xFF6562DF),
+                    modifier = Modifier
+                        .padding(start = 25.dp, end = 25.dp)
+                )
+                Button(
+                    onClick = {
+                        navController.navigate(MainScreen.AddSchedule.name)
+                    },
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .padding(start = 25.dp, end = 25.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF6562DF)
+                    ),
+                    shape = RoundedCornerShape(20.dp),
+                ) {
+                    Icon(imageVector = Icons.Filled.Add, contentDescription = "Add", tint = Color.White)
+                }
+            }
             Spacer(modifier = Modifier.height(15.dp))
             LazyColumn {
                 itemsIndexed(schedItems) { index, data ->
@@ -349,6 +373,7 @@ fun HomePage(
                                                 data.endDate
                                             )
                                             viewModel.deleteSchedule(username,data.title)
+                                            navController.navigate(MainScreen.HomePage.name)
                                         }
                                     }
                                 ) {
@@ -373,29 +398,6 @@ fun HomePage(
                 }
             }
             Spacer(modifier = Modifier.height(15.dp))
-            Button(
-                onClick = {
-                    navController.navigate(MainScreen.AddSchedule.name)
-                },
-                modifier = Modifier
-                    .padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF6562DF)
-                ),
-                shape = RoundedCornerShape(20.dp),
-            ) {
-                Icon(imageVector = Icons.Filled.Add, contentDescription = "Add", tint = Color.White)
-                Spacer(modifier = Modifier.width(20.dp))
-                Text(
-                    text = "Add New",
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 15.sp,
-                    color = Color.White,
-                    modifier = Modifier
-                        .padding(start = 0.dp, end = 8.dp, top = 10.dp, bottom = 10.dp),
-                )
-            }
-            Spacer(modifier = Modifier.height(200.dp))
         }
     }
 }

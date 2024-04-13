@@ -27,17 +27,32 @@ class OfflineScheduleRepository(private val reminderDao: ReminderModelDao) : Sch
         TODO("Not yet implemented")
     }
 
+    override suspend fun updateSchedule(schedule: ReminderModel): ResponseAPIDefault {
+        TODO("Not yet implemented")
+    }
+
     //override suspend fun deleteSchedule(schedule: ReminderModel) = reminderDao.delete(schedule)
 
-    override suspend fun updateSchedule(schedule: ReminderModel) = reminderDao.update(schedule)
+    //override suspend fun updateSchedule(schedule: ReminderModel) = reminderDao.update(schedule)
 
-    override fun getScheduleStream(title: String): Flow<ReminderModel> = reminderDao.getSchedule(title)
+    override suspend fun getScheduleStream(username: String, title: String): Flow<ReminderModel> {
+        TODO("Not yet implemented")
+    }
+
+    //override fun getScheduleStream(title: String): Flow<ReminderModel> = reminderDao.getSchedule(title)
 
     override suspend fun insertScheduleDtl(scheduledtl: List<AddTimeModel>) = reminderDao.insertdtl(scheduledtl)
-    override suspend fun insertScheduleDtl(scheduledtl: AddTimeModel) = reminderDao.insertdtlLine(scheduledtl)
+    override suspend fun insertScheduleDtl(username: String, scheduledtl: AddTimeModel) {
+        TODO("Not yet implemented")
+    }
+    //override suspend fun insertScheduleDtl(scheduledtl: AddTimeModel) = reminderDao.insertdtlLine(scheduledtl)
 
     override suspend fun deleteScheduleDtl(title: String) = reminderDao.deletedtl(title)
-    override suspend fun deleteScheduleDtl(id: Int?) = reminderDao.deleteScheduleDtl(id)
+    override suspend fun deleteScheduleDtl(username: String, title: String, id: Int?) {
+        TODO("Not yet implemented")
+    }
+
+    //override suspend fun deleteScheduleDtl(id: Int?) = reminderDao.deleteScheduleDtl(id)
     override suspend fun getAllScheduleDtl(
         username: String,
         title: String

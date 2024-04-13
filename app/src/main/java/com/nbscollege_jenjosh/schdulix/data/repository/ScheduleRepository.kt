@@ -14,12 +14,12 @@ interface ScheduleRepository {
     suspend fun insertSchedule(schedule: ReminderModel, scheduledtl: List<AddTimeModel>): ResponseAPIDefault
     suspend fun insertScheduleTmp(time: AddTimeTmpModel)
     suspend fun deleteSchedule(username: String, title: String)
-    suspend fun updateSchedule(schedule: ReminderModel)
-    fun getScheduleStream(title: String): Flow<ReminderModel>
+    suspend fun updateSchedule(schedule: ReminderModel) : ResponseAPIDefault
+    suspend fun getScheduleStream(username: String, title: String): Flow<ReminderModel>
 
     suspend fun insertScheduleDtl(scheduledtl: List<AddTimeModel>)
     suspend fun deleteScheduleDtl(title: String)
     suspend fun getAllScheduleDtl(username: String, title: String): Flow<List<AddTimeModel>>
-    suspend fun insertScheduleDtl(scheduledtl: AddTimeModel)
-    suspend fun deleteScheduleDtl(id: Int?)
+    suspend fun insertScheduleDtl(username: String, scheduledtl: AddTimeModel)
+    suspend fun deleteScheduleDtl(username: String, title: String, id: Int?)
 }

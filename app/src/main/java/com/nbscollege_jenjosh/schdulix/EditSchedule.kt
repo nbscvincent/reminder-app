@@ -59,6 +59,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
 import com.nbscollege_jenjosh.schdulix.preferences.PreferencesManager
+import com.nbscollege_jenjosh.schdulix.screens.registrationAlert
 import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ReminderDetails
 import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ReminderTimeDetails
 import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ScheduleScreenViewModel
@@ -89,6 +90,10 @@ fun EditSchedule(
     val mMonth: Int
     val mDay: Int
 
+    var padDay: String = ""
+    var padMOnth: String = ""
+    var intMonth = 0
+
     val mCalendar = Calendar.getInstance()
 
     mYear = mCalendar.get(Calendar.YEAR)
@@ -101,13 +106,32 @@ fun EditSchedule(
     val mDateStartDate = DatePickerDialog(
         mContext,
         { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
-            startDate = "$mDayOfMonth/${mMonth+1}/$mYear"
+            padDay = mDayOfMonth.toString()
+            if (mDayOfMonth.toString().length == 1){
+                padDay = "0${mDayOfMonth.toString()}"
+            }
+            intMonth = mMonth + 1
+            padMOnth = intMonth.toString()
+            if (intMonth.toString().length == 1){
+                padMOnth = "0${intMonth.toString()}"
+            }
+            startDate = "$mYear-$padMOnth-${padDay}"
         }, mYear, mMonth, mDay
     )
     val mDateEndDate = DatePickerDialog(
         mContext,
         { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
-            endDate = "$mDayOfMonth/${mMonth+1}/$mYear"
+            padDay = mDayOfMonth.toString()
+            if (mDayOfMonth.toString().length == 1){
+                padDay = "0${mDayOfMonth.toString()}"
+            }
+            intMonth = mMonth + 1
+            padMOnth = intMonth.toString()
+            if (intMonth.toString().length == 1){
+                padMOnth = "0${intMonth.toString()}"
+            }
+
+            endDate = "$mYear-$padMOnth-${padDay}"
         }, mYear, mMonth, mDay
     )
     mDateStartDate.datePicker.minDate = currentDate.timeInMillis
@@ -136,17 +160,31 @@ fun EditSchedule(
 
     coroutineScope.launch {
         viewModel.fetchScheduleDtl(username,index)
-    }
-    val listItem = viewModel.scheduleListDtl.collectAsState(initial = emptyList())
-
-    // select all the details here
-    coroutineScope.launch {
-        viewModel.getSchedule(index).collect {
+        viewModel.getSchedule(username, index).collect {
             title = it.title
             startDate = it.startDate
             endDate = it.endDate
         }
     }
+    val listItem = viewModel.scheduleListDtl.collectAsState(initial = emptyList())
+
+    var message = remember { mutableStateOf( "" ) }
+    var isSuccess = remember { mutableStateOf( false ) }
+    val showDialog = remember { mutableStateOf( false ) }
+    if (showDialog.value){
+        registrationAlert(
+            message = message,
+            showDialog = showDialog.value,
+            isSuccess = isSuccess.value,
+            navController = navController,
+        ) {
+            showDialog.value = false
+            if (isSuccess.value) {
+                navController.navigate(MainScreen.Splash.name)
+            }
+        }
+    }
+
 
     Scaffold (
         topBar = {
@@ -179,9 +217,20 @@ fun EditSchedule(
                             coroutineScope.launch {
                                 val addSchedUiState = viewModel.reminderUiState
 
-                                addSchedUiState.reminderDetails = ReminderDetails(title, startDate, endDate, username)
-                                viewModel.updateSchedule()
-                                navController.navigate(MainScreen.HomePage.name)
+                                //addSchedUiState.reminderDetails = ReminderDetails(title, startDate, endDate, username)
+                                addSchedUiState.reminderDetails = ReminderDetails(username,title,startDate,endDate,username)
+                                val response = viewModel.updateSchedule()
+                                if (response != null) {
+                                    if (response.flag == 1) {
+                                        message.value = response.message
+                                        showDialog.value = true
+                                    } else {
+                                        navController.navigate(MainScreen.HomePage.name)
+                                    }
+                                }else{
+                                    message.value = "An error occured."
+                                    showDialog.value = true
+                                }
                             }
                         },
                         colors = ButtonDefaults.buttonColors( containerColor = Color.White ),
@@ -330,8 +379,10 @@ fun EditSchedule(
                                 val addSchedUiState = viewModel.reminderUiState
 
                                 addSchedUiState.addSchedLine = ReminderTimeDetails(null,index,1,stringLabel)
-                                viewModel.insertScheduleDetail()
+                                viewModel.insertScheduleDetail(username)
                                 stringLabel = "";
+
+                                navController.navigate("EditSchedule/${title}")
                             }
                         }
                     },
@@ -380,8 +431,9 @@ fun EditSchedule(
                                     coroutineScope.launch {
                                         val addSchedUiState = viewModel.reminderUiState
 
-                                        addSchedUiState.addSchedLine = ReminderTimeDetails(timeList.id,index)
-                                        viewModel.deleteScheduleDtl()
+                                        addSchedUiState.addSchedLine = ReminderTimeDetails(timeList.id,index,timeList.line)
+                                        viewModel.deleteScheduleDtl(username)
+                                        navController.navigate("EditSchedule/${title}")
                                     }
                                 }
                             ) {
