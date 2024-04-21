@@ -2,6 +2,7 @@ package com.nbscollege_jenjosh.schdulix.ui.theme.reminder
 
 import android.content.SharedPreferences
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
 import timber.log.Timber
 
@@ -25,10 +27,24 @@ class ScheduleScreenViewModel(private val scheduleRepository: ScheduleRepository
 
     var scheduleList: Flow<List<ReminderModel>> = emptyFlow<List<ReminderModel>>()
     var scheduleListDtl: Flow<List<AddTimeModel>> = emptyFlow<List<AddTimeModel>>()
+    //var scheduleList: MutableStateFlow<List<ReminderModel>> = MutableStateFlow(emptyList())
+
+    private val _mainList = mutableStateListOf<ReminderModel>()
+    val mainList: List<ReminderModel>
+        get() = _mainList
 
     suspend fun fetchSchedule(username: String) {
         try {
             scheduleList = scheduleRepository.getAllScheduleStream(username)
+
+            _mainList.clear()
+
+            scheduleList.toList().forEach {
+                it.forEach{
+                    _mainList.add(it)
+                }
+            }
+            //scheduleList = scheduleRepository.getAllScheduleStream(username) as MutableStateFlow<List<ReminderModel>>
         } catch (e: Exception){
             Timber.i("SAMPLE HERE $e")
         }

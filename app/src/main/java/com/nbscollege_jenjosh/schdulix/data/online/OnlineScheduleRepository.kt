@@ -43,7 +43,9 @@ class OnlineScheduleRepository(private val ktorClient: HttpClient = KtorClient()
                 append("type", "get_schedule")
                 append("username", username)
             }))
+
         }
+        Timber.i("SAMPLE" + cl.bodyAsText())
         val response = cl.body<ResponseAPI>()
         return flow {
             emit(response.data)

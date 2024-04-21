@@ -144,7 +144,8 @@ fun HomePage(
     LaunchedEffect(Unit){
         viewModel.fetchSchedule(username)
     }
-    val schedItems by viewModel.scheduleList.collectAsState(initial = emptyList<ReminderModel>())
+    //val schedItems by viewModel.scheduleList.collectAsState(initial = emptyList<ReminderModel>())
+    val schedItems = viewModel.mainList
 
     /*Work Manager Start*/
     val application = LocalContext.current.applicationContext as Application
@@ -256,145 +257,162 @@ fun HomePage(
                 }
             }
             Spacer(modifier = Modifier.height(15.dp))
-            LazyColumn {
-                itemsIndexed(schedItems) { index, data ->
-                    var isExpired by remember { mutableStateOf(false) }
 
-                    var formatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy")
+            if (schedItems.isEmpty()){
+                Text(
+                    text = "Loading... Please wait....",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp,
+                    color = Color.Black,
+                )
+            }else {
+                LazyColumn {
+                    itemsIndexed(schedItems) { index, data ->
+                        var isExpired by remember { mutableStateOf(false) }
 
-                    var start = LocalDate.parse(data.startDate)
-                    var end = LocalDate.parse(data.endDate)
-                    var dateStart = start.format(formatter)
-                    var dateEnd = end.format(formatter)
+                        var formatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy")
 
-                    /*Work Manager Start*/
-                    val schedStart = LocalDate.parse(data.startDate)
-                    val schedEnd = LocalDate.parse(data.endDate)
-                    val days = ChronoUnit.DAYS.between(LocalDate.now(), schedStart)
-                    val daysEnd = ChronoUnit.DAYS.between(LocalDate.now(), schedEnd)
-                    //val daysEnd = -1;
+                        var start = LocalDate.parse(data.startDate)
+                        var end = LocalDate.parse(data.endDate)
+                        var dateStart = start.format(formatter)
+                        var dateEnd = end.format(formatter)
 
-                    if (daysEnd < 0){
-                        isExpired = true
+                        /*Work Manager Start*/
+                        val schedStart = LocalDate.parse(data.startDate)
+                        val schedEnd = LocalDate.parse(data.endDate)
+                        val days = ChronoUnit.DAYS.between(LocalDate.now(), schedStart)
+                        val daysEnd = ChronoUnit.DAYS.between(LocalDate.now(), schedEnd)
+                        //val daysEnd = -1;
 
-                        // kill the schedule
-                        workManager.cancelAllWorkByTag("${data.title}")
-                    }else {
-                        val dueDate = Calendar.getInstance()
-                        val currentDate = Calendar.getInstance()
+                        if (daysEnd < 0) {
+                            isExpired = true
 
-                        // select the details here
-                        //val listItem = viewModel.getAllScheduleDtl(username, data.title).collectAsState(initial = emptyList())
-                        coroutineScope.launch {
-                            viewModel.fetchScheduleDtl(username,data.title)
-                        }
-                        val listItem = viewModel.scheduleListDtl.collectAsState(initial = emptyList())
-                        listItem.value.forEach {
-                            val str = it.time.split(':')
+                            // kill the schedule
+                            workManager.cancelAllWorkByTag("${data.title}")
+                        } else {
+                            val dueDate = Calendar.getInstance()
+                            val currentDate = Calendar.getInstance()
 
-                            dueDate.set(Calendar.DAY_OF_MONTH, schedStart.dayOfMonth)
-                            dueDate.set(Calendar.HOUR_OF_DAY, str[0].toInt())
-                            dueDate.set(Calendar.MINUTE, str[1].toInt())
-                            if (dueDate.before(currentDate)) {
-                                dueDate.add(Calendar.HOUR_OF_DAY, days.toInt())
+                            // select the details here
+                            //val listItem = viewModel.getAllScheduleDtl(username, data.title).collectAsState(initial = emptyList())
+                            coroutineScope.launch {
+                                viewModel.fetchScheduleDtl(username, data.title)
                             }
-                            val timeDiff = dueDate.timeInMillis - currentDate.timeInMillis
+                            val listItem =
+                                viewModel.scheduleListDtl.collectAsState(initial = emptyList())
+                            listItem.value.forEach {
+                                val str = it.time.split(':')
 
-                            val formatter =
-                                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm", Locale.ENGLISH);
-                            val localDate =
-                                LocalDateTime.parse("${data.startDate} ${it.time}", formatter);
-                            val timeInMilliseconds =
-                                localDate.atOffset(ZoneOffset.UTC).toInstant().toEpochMilli();
+                                dueDate.set(Calendar.DAY_OF_MONTH, schedStart.dayOfMonth)
+                                dueDate.set(Calendar.HOUR_OF_DAY, str[0].toInt())
+                                dueDate.set(Calendar.MINUTE, str[1].toInt())
+                                if (dueDate.before(currentDate)) {
+                                    dueDate.add(Calendar.HOUR_OF_DAY, days.toInt())
+                                }
+                                val timeDiff = dueDate.timeInMillis - currentDate.timeInMillis
 
-                            if (timeDiff > 0) {
-                                val workBuilder = PeriodicWorkRequestBuilder<notificationReminder>(
-                                    1,
-                                    TimeUnit.DAYS
-                                )
-                                    .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
-                                    .addTag("${data.title}")
-                                workBuilder.setInputData(
-                                    workDataOf(
-                                        "ID" to "${it.id}1",
-                                        "NAME" to data.title,
-                                        "MESSAGE" to "This is schedule is now!"
+                                val formatter =
+                                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm", Locale.ENGLISH);
+                                val localDate =
+                                    LocalDateTime.parse("${data.startDate} ${it.time}", formatter);
+                                val timeInMilliseconds =
+                                    localDate.atOffset(ZoneOffset.UTC).toInstant().toEpochMilli();
+
+                                if (timeDiff > 0) {
+                                    val workBuilder =
+                                        PeriodicWorkRequestBuilder<notificationReminder>(
+                                            1,
+                                            TimeUnit.DAYS
+                                        )
+                                            .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
+                                            .addTag("${data.title}")
+                                    workBuilder.setInputData(
+                                        workDataOf(
+                                            "ID" to "${it.id}1",
+                                            "NAME" to data.title,
+                                            "MESSAGE" to "This is schedule is now!"
+                                        )
                                     )
-                                )
-                                workManager.enqueueUniquePeriodicWork(
-                                    "${it.id}1",
-                                    ExistingPeriodicWorkPolicy.KEEP,
-                                    workBuilder.build()
-                                )
-                            }
-                        }
-                    }
-                    /*Work Manager End*/
-
-                    ElevatedCard(
-                        onClick = {
-                            navController.navigate("EditSchedule/${data.title}")
-                        },
-                        elevation = CardDefaults.cardElevation(
-                            defaultElevation = 6.dp
-                        ),
-                        colors = CardDefaults.cardColors(
-                            containerColor = if (isExpired) Color.Red else Color.White,
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 25.dp, end = 25.dp, top = 1.dp, bottom = 5.dp),
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 25.dp, end = 25.dp, top = 10.dp, bottom = 10.dp),
-                        ) {
-                            Row (
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Text(
-                                    text = data.title,
-                                    color = if (isExpired) Color.White else Color.Black,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                IconButton(
-                                    onClick = {
-                                        // kill the schedule
-                                        workManager.cancelAllWorkByTag("${data.title}")
-                                        coroutineScope.launch {
-                                            val schedUiState = viewModel.reminderUiState
-                                            schedUiState.reminderDetails = ReminderDetails(
-                                                data.title,
-                                                data.startDate,
-                                                data.endDate
-                                            )
-                                            viewModel.deleteSchedule(username,data.title)
-                                            navController.navigate(MainScreen.HomePage.name)
-                                        }
-                                    }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Delete,
-                                        contentDescription = "Delete",
-                                        tint = if (isExpired) Color.White else Color.Black,
+                                    workManager.enqueueUniquePeriodicWork(
+                                        "${it.id}1",
+                                        ExistingPeriodicWorkPolicy.KEEP,
+                                        workBuilder.build()
                                     )
                                 }
                             }
-                            Text(
-                                text = dateStart.toString(),
-                                color = if (isExpired) Color.White else Color.Black,
-                            )
-                            Text(
-                                text = dateEnd.toString(),
-                                color = if (isExpired) Color.White else Color.Black,
-                            )
                         }
-                    }
+                        /*Work Manager End*/
 
+                        ElevatedCard(
+                            onClick = {
+                                navController.navigate("EditSchedule/${data.title}")
+                            },
+                            elevation = CardDefaults.cardElevation(
+                                defaultElevation = 6.dp
+                            ),
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (isExpired) Color.Red else Color.White,
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 25.dp, end = 25.dp, top = 1.dp, bottom = 5.dp),
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                        start = 25.dp,
+                                        end = 25.dp,
+                                        top = 10.dp,
+                                        bottom = 10.dp
+                                    ),
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Text(
+                                        text = data.title,
+                                        color = if (isExpired) Color.White else Color.Black,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    IconButton(
+                                        onClick = {
+                                            // kill the schedule
+                                            workManager.cancelAllWorkByTag("${data.title}")
+                                            coroutineScope.launch {
+                                                val schedUiState = viewModel.reminderUiState
+                                                schedUiState.reminderDetails = ReminderDetails(
+                                                    data.title,
+                                                    data.startDate,
+                                                    data.endDate
+                                                )
+                                                viewModel.deleteSchedule(username, data.title)
+                                                navController.navigate(MainScreen.HomePage.name)
+                                            }
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Delete,
+                                            contentDescription = "Delete",
+                                            tint = if (isExpired) Color.White else Color.Black,
+                                        )
+                                    }
+                                }
+                                Text(
+                                    text = dateStart.toString(),
+                                    color = if (isExpired) Color.White else Color.Black,
+                                )
+                                Text(
+                                    text = dateEnd.toString(),
+                                    color = if (isExpired) Color.White else Color.Black,
+                                )
+                            }
+                        }
+
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(15.dp))
