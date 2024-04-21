@@ -55,6 +55,7 @@ import com.nbscollege_jenjosh.schdulix.ui.theme.user.RegistrationScreenViewModel
 import com.nbscollege_jenjosh.schdulix.ui.theme.user.UserDetails
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -212,23 +213,31 @@ fun RegistrationScreen(
                             // check if user is existing
                             var saveData = 'N'
                             val check = viewModel.selectUser(username)
-                            check.collect {
-                                Log.i("loginState", it.toString())
-                                if (it == null) {
-                                    saveData = 'Y'
-                                }
-                                if (saveData == 'Y') {
-                                    message.value = "Successfully registered"
-                                    showDialog.value = true
-                                    isSuccess.value = true
+                            if (check != null) {
+                                check.collect {
 
-                                    val userUiState = viewModel.userUiState
-                                    userUiState.userDetails =
-                                        UserDetails(username, password, firstName, lastName)
-                                    viewModel.saveUser()
-                                } else {
-                                    message.value = "User already exist"
-                                    showDialog.value = true
+                                    Timber.i("SAMPLE $it")
+                                    if (it == null) {
+                                        saveData = 'Y'
+                                    }else{
+                                        if (it.username.isEmpty()){
+                                            saveData = 'Y'
+                                        }
+                                    }
+
+                                    if (saveData == 'Y') {
+                                        message.value = "Successfully registered"
+                                        showDialog.value = true
+                                        isSuccess.value = true
+
+                                        val userUiState = viewModel.userUiState
+                                        userUiState.userDetails =
+                                            UserDetails(username, password, firstName, lastName)
+                                        viewModel.saveUser()
+                                    } else {
+                                        message.value = "User already exist"
+                                        showDialog.value = true
+                                    }
                                 }
                             }
                         }

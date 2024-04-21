@@ -74,6 +74,7 @@ import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ReminderTimeDetails
 import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ScheduleScreenViewModel
 import com.nbscollege_jenjosh.schdulix.ui.theme.user.AppViewModelProvider
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.util.Calendar
@@ -88,7 +89,6 @@ fun AddSchedule(
     navController: NavController,
     viewModel: ScheduleScreenViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    timeTmpData.clear()
     var title by remember { mutableStateOf("") }
     var startDate by remember { mutableStateOf("") }
     var endDate by remember { mutableStateOf("") }
@@ -149,9 +149,6 @@ fun AddSchedule(
     mDateStartDate.datePicker.minDate = currentDate.timeInMillis
     mDateEndDate.datePicker.minDate = currentDate.timeInMillis
 
-    //startDate = ""
-    //endDate = ""
-
     val state = rememberScrollState()
     LaunchedEffect(Unit) { state.animateScrollTo(100) }
 
@@ -190,7 +187,6 @@ fun AddSchedule(
     }
 
     val application = LocalContext.current.applicationContext as Application
-    val workManager = WorkManager.getInstance(application)
 
     Scaffold (
         topBar = {
@@ -233,7 +229,7 @@ fun AddSchedule(
                                         val addSchedUiState = viewModel.reminderUiState
 
                                         // add header data
-                                        addSchedUiState.reminderDetails = ReminderDetails(title, startDate, endDate, username)
+                                        addSchedUiState.reminderDetails = ReminderDetails(username, title, startDate, endDate, username)
 
                                         // add details
                                         val timeList = mutableListOf<AddTimeModel>()
@@ -244,13 +240,28 @@ fun AddSchedule(
                                             cnt++
                                         }
                                         addSchedUiState.detailTime = timeList
-                                        viewModel.insertSchedule()
+                                        val response = viewModel.insertSchedule()
+                                        if (response != null) {
+                                            if (response.flag == 1){
+                                                message.value = response.message
+                                                showDialog.value = true
+                                            }else{
+                                                message.value = "Schedule successfully added"
+                                                showDialog.value = true
+                                                isSuccess.value = true
 
-                                        message.value = "Schedule successfully added"
+                                                timeTmpData.clear()
+                                            }
+                                        }else{
+                                            message.value = "An error occured."
+                                            showDialog.value = true
+                                        }
+
+                                        /*message.value = "Schedule successfully added"
                                         showDialog.value = true
                                         isSuccess.value = true
 
-                                        timeTmpData.clear()
+                                        timeTmpData.clear()*/
                                     }
                                 }
                             }

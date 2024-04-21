@@ -12,12 +12,12 @@ interface UserRepository {
     /**
      * Retrieve an user from the given data source that matches with the [id].
      */
-    fun getUserStream(id: String): Flow<UserProfile?>
+    suspend fun getUserStream(id: String): Flow<UserProfile?>
 
     /**
      * Retrieve an user and password.
      */
-    fun getUserPasswordStream(username: String, password:String): Flow<UserProfile?>
+    suspend fun getUserPasswordStream(username: String, password:String): Flow<UserProfile?>
 
     /**
      * Insert user in the data source

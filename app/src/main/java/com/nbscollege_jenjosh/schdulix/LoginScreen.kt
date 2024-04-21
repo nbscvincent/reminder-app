@@ -72,7 +72,11 @@ import com.nbscollege_jenjosh.schdulix.ui.theme.user.RegistrationScreenViewModel
 import com.nbscollege_jenjosh.schdulix.ui.theme.user.UserDetails
 import com.nbscollege_jenjosh.schdulix.viewmodel.ScreenViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -118,15 +122,24 @@ fun LoginScreen(
                                 val flow : Flow<UserProfile?>? = viewModel.selectUser()
 
                                 if (flow != null) {
-                                    flow.collect{
-                                        if (it != null) {
-                                            screenViewModel.setLogin()
-                                            navController.navigate(MainScreen.Splash.name)
+                                    flow.collect {
 
-                                            preferencesManager.saveData("login", "true")
-                                            preferencesManager.saveData("username", it.username)
-                                            preferencesManager.saveData("firstName", it.firstName)
-                                            preferencesManager.saveData("lastName", it.lastName)
+                                        if (it != null) {
+                                            if (it.username.isEmpty()){
+                                                openDialog.value = true
+                                            }else {
+                                                screenViewModel.setLogin()
+
+                                                preferencesManager.saveData("login", "true")
+                                                preferencesManager.saveData("username", it.username)
+                                                preferencesManager.saveData(
+                                                    "firstName",
+                                                    it.firstName
+                                                )
+                                                preferencesManager.saveData("lastName", it.lastName)
+
+                                                navController.navigate(MainScreen.Splash.name)
+                                            }
                                         }else{
                                             openDialog.value = true
                                         }
