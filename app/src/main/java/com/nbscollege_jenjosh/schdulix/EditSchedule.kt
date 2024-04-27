@@ -59,14 +59,18 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
 import com.nbscollege_jenjosh.schdulix.preferences.PreferencesManager
+import com.nbscollege_jenjosh.schdulix.screens.loadingScreen
 import com.nbscollege_jenjosh.schdulix.screens.registrationAlert
 import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ReminderDetails
 import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ReminderTimeDetails
 import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ScheduleScreenViewModel
 import com.nbscollege_jenjosh.schdulix.ui.theme.user.AppViewModelProvider
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
-
+import java.util.Date
 
 
 @SuppressLint("UnrememberedMutableState", "CoroutineCreationDuringComposition")
@@ -151,20 +155,24 @@ fun EditSchedule(
             stringLabel = "${hourStr.padStart(2,'0')}:${minuteStr.padStart(2,'0')}"
         }, mHour, mMinute, false
     )
-
-    //var listItem = viewModel.getAllScheduleDtl(index).collectAsState(initial = emptyList())
+    val isLoading = remember { mutableStateOf(false) }
+    if (isLoading.value){
+        loadingScreen(isLoading.value) { isLoading.value = false }
+    }
 
     val context = LocalContext.current
     val preferencesManager = remember { PreferencesManager(context) }
     val username = preferencesManager.getData("username", "")
 
-    coroutineScope.launch {
+    LaunchedEffect(Unit){
+        isLoading.value = true
         viewModel.fetchScheduleDtl(username,index)
         viewModel.getSchedule(username, index).collect {
             title = it.title
             startDate = it.startDate
             endDate = it.endDate
         }
+        isLoading.value = false
     }
     val listItem = viewModel.scheduleListDtl.collectAsState(initial = emptyList())
 
@@ -185,6 +193,9 @@ fun EditSchedule(
         }
     }
 
+
+    val format = SimpleDateFormat("HH:mm")
+    val formatDisp = SimpleDateFormat("hh:mm a")
 
     Scaffold (
         topBar = {
@@ -217,9 +228,10 @@ fun EditSchedule(
                             coroutineScope.launch {
                                 val addSchedUiState = viewModel.reminderUiState
 
-                                //addSchedUiState.reminderDetails = ReminderDetails(title, startDate, endDate, username)
                                 addSchedUiState.reminderDetails = ReminderDetails(username,title,startDate,endDate,username)
+                                isLoading.value = true
                                 val response = viewModel.updateSchedule()
+                                isLoading.value = false
                                 if (response != null) {
                                     if (response.flag == 1) {
                                         message.value = response.message
@@ -403,6 +415,22 @@ fun EditSchedule(
             }
             LazyColumn{
                 itemsIndexed(listItem.value){indexx, timeList ->
+                    val dispDate = "${timeList.time}"
+                    val dteDisp = format.parse(dispDate)
+                    val dateDisplay = formatDisp.format(dteDisp)
+
+                    /*try{
+                        val dispDate = "${timeList.time}"
+                        val dteDisp = format.parse(dispDate)
+                        val dateDisplay = formatDisp.format(dteDisp)
+
+                        println("SAMPLERR ${dteDisp}")
+                        println("SAMPLERR ${dteDisp?.let { formatDisp.format(it) }}")
+                        println("SAMPLERR ${dateDisplay}")
+                    }catch (e: Exception){
+                        println("SAMPLER $e")
+                    }*/
+
                     ElevatedCard(
                         onClick = {  },
                         elevation = CardDefaults.cardElevation(
@@ -423,7 +451,8 @@ fun EditSchedule(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
-                                text = timeList.time,
+                                //text = timeList.time,
+                                text = dateDisplay,
                                 color = Color.Black
                             )
                             IconButton(
@@ -432,7 +461,9 @@ fun EditSchedule(
                                         val addSchedUiState = viewModel.reminderUiState
 
                                         addSchedUiState.addSchedLine = ReminderTimeDetails(timeList.id,index,timeList.line)
+                                        isLoading.value = true
                                         viewModel.deleteScheduleDtl(username)
+                                        isLoading.value = false
                                         navController.navigate("EditSchedule/${title}")
                                     }
                                 }
