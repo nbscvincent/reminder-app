@@ -234,7 +234,7 @@ fun HomePage(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "My Schdulix",
+                    text = "My Schedule",
                     fontWeight = FontWeight.Bold,
                     fontSize = 30.sp,
                     color = Color(0xFF6562DF),

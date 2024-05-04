@@ -375,7 +375,7 @@ fun AddSchedule(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 25.dp, end = 25.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 OutlinedTextField(
@@ -386,8 +386,8 @@ fun AddSchedule(
                     label = { Text(text = "Time") },
                     modifier = Modifier
                         //.fillMaxWidth()
-                        //.padding(start = 25.dp, end = 25.dp, top = 0.dp, bottom = 0.dp)
-                        .clickable { mTimePickerDialog.show() },
+                        .clickable { mTimePickerDialog.show() }
+                        .weight(1f),
                     enabled = false,
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         textColor = Color.Black,
@@ -427,7 +427,7 @@ fun AddSchedule(
                         }
                     },
                     modifier = Modifier
-                        .padding(top = 15.dp, bottom = 15.dp),
+                        .weight(1f),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF6562DF),
                     ),

@@ -155,13 +155,13 @@ fun MainHomeScreen(
         drawerContent = {
             ModalDrawerSheet {
                 Text(
-                    text = "SCHDULIX",
+                    text = "SCHDULIX", //logo instead of text or
                     modifier = Modifier.padding(16.dp)
                 )
                 Divider()
                 NavigationDrawerItem(
                     label = {
-                        Text(text = "My Account")
+                        Text(text = "My Profile") //put "profile" icon
                             },
                     selected = false,
                     onClick = {
@@ -171,7 +171,7 @@ fun MainHomeScreen(
                 )
                 NavigationDrawerItem(
                     label = {
-                        Text(text = "Home")
+                        Text(text = "My Schedules")
                     },
                     selected = false,
                     onClick = {
@@ -181,7 +181,7 @@ fun MainHomeScreen(
                 )
                 NavigationDrawerItem(
                     label = {
-                        Text(text = "Add New Schedule")
+                        Text(text = "New Schedule")
                     },
                     selected = false,
                     onClick = {

@@ -341,9 +341,8 @@ fun EditSchedule(
             Spacer(modifier = Modifier.height(15.dp))
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 25.dp, end = 25.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 OutlinedTextField(
@@ -353,6 +352,7 @@ fun EditSchedule(
                     placeholder = { Text(text = "Time") },
                     label = { Text(text = "Time") },
                     modifier = Modifier
+                        .weight(1f)
                         .clickable { mTimePickerDialog.show() },
                     enabled = false,
                     colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -387,7 +387,7 @@ fun EditSchedule(
                         }
                     },
                     modifier = Modifier
-                        .padding(top = 15.dp, bottom = 15.dp),
+                        .weight(1f),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF6562DF),
                     ),
