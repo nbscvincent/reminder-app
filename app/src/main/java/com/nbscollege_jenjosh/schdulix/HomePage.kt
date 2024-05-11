@@ -320,7 +320,7 @@ fun HomePage(
                                         workDataOf(
                                             "ID" to "${it.id}1",
                                             "NAME" to data.id,
-                                            "MESSAGE" to "This schedule is now!"
+                                            "MESSAGE" to "You have a schedule task!"
                                         )
                                     )
                                     workManager.enqueueUniquePeriodicWork(
