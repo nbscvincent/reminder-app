@@ -17,7 +17,8 @@ var timeTmpData = mutableStateListOf<TimeTmpModel>()
 @Serializable
 @Entity(tableName = "schedule")
 data class ReminderModel(
-    @PrimaryKey val title: String,
+    @PrimaryKey val id: Int,
+    val title: String,
     val startDate: String,
     val endDate: String,
     val createdBy: String,

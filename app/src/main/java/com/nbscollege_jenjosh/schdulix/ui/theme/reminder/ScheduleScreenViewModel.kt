@@ -49,9 +49,9 @@ class ScheduleScreenViewModel(private val scheduleRepository: ScheduleRepository
             Timber.i("SAMPLE HERE $e")
         }
     }
-    suspend fun fetchScheduleDtl(username: String, title: String) {
+    suspend fun fetchScheduleDtl(username: String, id: Int) {
         try {
-            scheduleListDtl = scheduleRepository.getAllScheduleDtl(username, title)
+            scheduleListDtl = scheduleRepository.getAllScheduleDtl(username, id)
         } catch (e: Exception){
             Timber.i("SAMPLE HERE $e")
         }
@@ -94,8 +94,8 @@ class ScheduleScreenViewModel(private val scheduleRepository: ScheduleRepository
         }
     }
 
-    suspend fun getSchedule(username: String, title: String): Flow<ReminderModel> {
-        return scheduleRepository.getScheduleStream(username, title)
+    suspend fun getSchedule(username: String, id: Int): Flow<ReminderModel> {
+        return scheduleRepository.getScheduleStream(username, id)
     }
 
     suspend fun getAllSchedule(username: String) : Flow<List<ReminderModel>>{
@@ -114,18 +114,18 @@ class ScheduleScreenViewModel(private val scheduleRepository: ScheduleRepository
         }
     }
 
-    suspend fun deleteSchedule(username: String, title: String){
+    suspend fun deleteSchedule(username: String, id: Int){
         //scheduleRepository.deleteSchedule(reminderUiState.reminderDetails.toReminder())
         //scheduleRepository.deleteScheduleDtl(reminderUiState.reminderDetails.title)
         try {
-            scheduleRepository.deleteSchedule(username,title)
+            scheduleRepository.deleteSchedule(username,id)
         } catch (e: Exception){
             Timber.i("SAMPLE HERE $e")
         }
     }
 
-    suspend fun getAllScheduleDtl(username: String, title: String): Flow<List<AddTimeModel>> {
-        return scheduleRepository.getAllScheduleDtl(username, title)
+    suspend fun getAllScheduleDtl(username: String, id: Int): Flow<List<AddTimeModel>> {
+        return scheduleRepository.getAllScheduleDtl(username, id)
     }
 
     suspend fun deleteScheduleDtl(username: String){
@@ -145,6 +145,7 @@ data class ScheduleUiState(
 )
 @Serializable
 data class ReminderDetails(
+    val id: Int = 0,
     val username: String = "",
     val title: String = "",
     val startDate: String = "",
@@ -159,6 +160,7 @@ data class ReminderTimeDetails(
 )
 
 fun ReminderDetails.toReminder(): ReminderModel = ReminderModel(
+    id = id,
     title = title,
     startDate = startDate,
     endDate = endDate,

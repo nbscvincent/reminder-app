@@ -73,12 +73,12 @@ import java.util.Calendar
 import java.util.Date
 
 
-@SuppressLint("UnrememberedMutableState", "CoroutineCreationDuringComposition")
+@SuppressLint("UnrememberedMutableState", "CoroutineCreationDuringComposition", "SimpleDateFormat")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditSchedule(
     navController: NavController,
-    index: String,
+    index: Int,
     viewModel: ScheduleScreenViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -228,7 +228,7 @@ fun EditSchedule(
                             coroutineScope.launch {
                                 val addSchedUiState = viewModel.reminderUiState
 
-                                addSchedUiState.reminderDetails = ReminderDetails(username,title,startDate,endDate,username)
+                                addSchedUiState.reminderDetails = ReminderDetails(index,username,title,startDate,endDate,username)
                                 isLoading.value = true
                                 val response = viewModel.updateSchedule()
                                 isLoading.value = false
@@ -277,7 +277,6 @@ fun EditSchedule(
             Spacer(modifier = Modifier.height(15.dp))
             OutlinedTextField(
                 value = title,
-                readOnly = true,
                 onValueChange = { title = it },
                 shape = RoundedCornerShape(10.dp),
                 placeholder = { Text(text = "Title") },
@@ -390,11 +389,11 @@ fun EditSchedule(
                             coroutineScope.launch {
                                 val addSchedUiState = viewModel.reminderUiState
 
-                                addSchedUiState.addSchedLine = ReminderTimeDetails(null,index,1,stringLabel)
+                                addSchedUiState.addSchedLine = ReminderTimeDetails(index, title,1,stringLabel)
                                 viewModel.insertScheduleDetail(username)
                                 stringLabel = "";
 
-                                navController.navigate("EditSchedule/${title}")
+                                navController.navigate("EditSchedule/${index}")
                             }
                         }
                     },
@@ -418,18 +417,6 @@ fun EditSchedule(
                     val dispDate = "${timeList.time}"
                     val dteDisp = format.parse(dispDate)
                     val dateDisplay = formatDisp.format(dteDisp)
-
-                    /*try{
-                        val dispDate = "${timeList.time}"
-                        val dteDisp = format.parse(dispDate)
-                        val dateDisplay = formatDisp.format(dteDisp)
-
-                        println("SAMPLERR ${dteDisp}")
-                        println("SAMPLERR ${dteDisp?.let { formatDisp.format(it) }}")
-                        println("SAMPLERR ${dateDisplay}")
-                    }catch (e: Exception){
-                        println("SAMPLER $e")
-                    }*/
 
                     ElevatedCard(
                         onClick = {  },
@@ -460,11 +447,11 @@ fun EditSchedule(
                                     coroutineScope.launch {
                                         val addSchedUiState = viewModel.reminderUiState
 
-                                        addSchedUiState.addSchedLine = ReminderTimeDetails(timeList.id,index,timeList.line)
+                                        addSchedUiState.addSchedLine = ReminderTimeDetails(index,"",timeList.line)
                                         isLoading.value = true
                                         viewModel.deleteScheduleDtl(username)
                                         isLoading.value = false
-                                        navController.navigate("EditSchedule/${title}")
+                                        navController.navigate("EditSchedule/${index}")
                                     }
                                 }
                             ) {

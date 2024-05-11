@@ -237,7 +237,7 @@ fun AddSchedule(
                                         val addSchedUiState = viewModel.reminderUiState
 
                                         // add header data
-                                        addSchedUiState.reminderDetails = ReminderDetails(username, title, startDate, endDate, username)
+                                        addSchedUiState.reminderDetails = ReminderDetails(0,username, title, startDate, endDate, username)
 
                                         // add details
                                         val timeList = mutableListOf<AddTimeModel>()

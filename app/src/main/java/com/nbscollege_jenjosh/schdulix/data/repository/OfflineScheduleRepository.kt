@@ -23,7 +23,7 @@ class OfflineScheduleRepository(private val reminderDao: ReminderModelDao) : Sch
         TODO("Not yet implemented")
     }
 
-    override suspend fun deleteSchedule(username: String, title: String) {
+    override suspend fun deleteSchedule(username: String, id: Int) {
         TODO("Not yet implemented")
     }
 
@@ -35,7 +35,7 @@ class OfflineScheduleRepository(private val reminderDao: ReminderModelDao) : Sch
 
     //override suspend fun updateSchedule(schedule: ReminderModel) = reminderDao.update(schedule)
 
-    override suspend fun getScheduleStream(username: String, title: String): Flow<ReminderModel> {
+    override suspend fun getScheduleStream(username: String, id: Int): Flow<ReminderModel> {
         TODO("Not yet implemented")
     }
 
@@ -55,7 +55,7 @@ class OfflineScheduleRepository(private val reminderDao: ReminderModelDao) : Sch
     //override suspend fun deleteScheduleDtl(id: Int?) = reminderDao.deleteScheduleDtl(id)
     override suspend fun getAllScheduleDtl(
         username: String,
-        title: String
+        id: Int
     ): Flow<List<AddTimeModel>> {
         TODO("Not yet implemented")
     }

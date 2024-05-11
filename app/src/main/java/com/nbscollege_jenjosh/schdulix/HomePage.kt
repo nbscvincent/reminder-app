@@ -278,7 +278,7 @@ fun HomePage(
                             isExpired = true
 
                             // kill the schedule
-                            workManager.cancelAllWorkByTag("${data.title}")
+                            workManager.cancelAllWorkByTag("${data.id}")
                         } else {
                             val dueDate = Calendar.getInstance()
                             val currentDate = Calendar.getInstance()
@@ -286,7 +286,7 @@ fun HomePage(
                             // select the details here
                             //val listItem = viewModel.getAllScheduleDtl(username, data.title).collectAsState(initial = emptyList())
                             coroutineScope.launch {
-                                viewModel.fetchScheduleDtl(username, data.title)
+                                viewModel.fetchScheduleDtl(username, data.id)
                             }
                             val listItem =
                                 viewModel.scheduleListDtl.collectAsState(initial = emptyList())
@@ -315,12 +315,12 @@ fun HomePage(
                                             TimeUnit.DAYS
                                         )
                                             .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
-                                            .addTag("${data.title}")
+                                            .addTag("${data.id}")
                                     workBuilder.setInputData(
                                         workDataOf(
                                             "ID" to "${it.id}1",
-                                            "NAME" to data.title,
-                                            "MESSAGE" to "This is schedule is now!"
+                                            "NAME" to data.id,
+                                            "MESSAGE" to "This schedule is now!"
                                         )
                                     )
                                     workManager.enqueueUniquePeriodicWork(
@@ -335,7 +335,7 @@ fun HomePage(
 
                         ElevatedCard(
                             onClick = {
-                                navController.navigate("EditSchedule/${data.title}")
+                                navController.navigate("EditSchedule/${data.id}")
                             },
                             elevation = CardDefaults.cardElevation(
                                 defaultElevation = 6.dp
@@ -371,15 +371,16 @@ fun HomePage(
                                     IconButton(
                                         onClick = {
                                             // kill the schedule
-                                            workManager.cancelAllWorkByTag("${data.title}")
+                                            workManager.cancelAllWorkByTag("${data.id}")
                                             coroutineScope.launch {
                                                 val schedUiState = viewModel.reminderUiState
                                                 schedUiState.reminderDetails = ReminderDetails(
+                                                    data.id,
                                                     data.title,
                                                     data.startDate,
                                                     data.endDate
                                                 )
-                                                viewModel.deleteSchedule(username, data.title)
+                                                viewModel.deleteSchedule(username, data.id)
                                                 navController.navigate(MainScreen.HomePage.name)
                                             }
                                         }
