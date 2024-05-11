@@ -245,7 +245,7 @@ fun MainHomeScreen(
                     val bid = navBackStackEntry.arguments?.getString("bid")
 
                     bid?.let {
-                        EditSchedule(navController = navController, index = bid.toString())
+                        EditSchedule(navController = navController, index = bid.toInt())
                     }
                 }
             }

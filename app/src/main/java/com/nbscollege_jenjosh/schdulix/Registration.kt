@@ -48,6 +48,7 @@ import com.nbscollege_jenjosh.schdulix.model.UserProfile
 import com.nbscollege_jenjosh.schdulix.model.checkLogin
 import com.nbscollege_jenjosh.schdulix.model.userList
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
+import com.nbscollege_jenjosh.schdulix.screens.loadingScreen
 import com.nbscollege_jenjosh.schdulix.screens.registrationAlert
 import com.nbscollege_jenjosh.schdulix.ui.theme.user.AppViewModelProvider
 import com.nbscollege_jenjosh.schdulix.ui.theme.user.LoginScreenViewModel
@@ -85,6 +86,11 @@ fun RegistrationScreen(
                 navController.navigate(MainScreen.Splash.name)
             }
         }
+    }
+
+    val isLoading = remember { mutableStateOf(false) }
+    if (isLoading.value){
+        loadingScreen(isLoading.value) { isLoading.value = false }
     }
 
 
@@ -212,11 +218,11 @@ fun RegistrationScreen(
                         coroutineScope.launch {
                             // check if user is existing
                             var saveData = 'N'
+                            isLoading.value = true
                             val check = viewModel.selectUser(username)
+                            isLoading.value = false
                             if (check != null) {
                                 check.collect {
-
-                                    Timber.i("SAMPLE $it")
                                     if (it == null) {
                                         saveData = 'Y'
                                     }else{

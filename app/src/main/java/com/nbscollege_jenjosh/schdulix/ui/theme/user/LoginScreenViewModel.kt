@@ -1,6 +1,7 @@
 package com.nbscollege_jenjosh.schdulix.ui.theme.user
 
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,7 +16,9 @@ import kotlinx.coroutines.flow.collect
 import timber.log.Timber
 
 class LoginScreenViewModel(private val usersRepository: UserRepository) : ViewModel() {
-
+    private val _uiState = mutableStateOf(UIState())
+    val uiState: MutableState<UIState>
+        get() = _uiState
     /**
      * Holds current user ui state
      */
@@ -82,4 +85,9 @@ fun UserProfile.toUserDetails(): UserDetails = UserDetails(
     password  = password,
     firstName = firstName,
     lastName = lastName
+)
+
+data class UIState(
+    val isLoading: Boolean = false,
+    val isDone: Boolean = false
 )

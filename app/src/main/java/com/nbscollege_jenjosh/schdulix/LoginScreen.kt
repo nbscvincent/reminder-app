@@ -29,6 +29,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -64,6 +65,7 @@ import com.nbscollege_jenjosh.schdulix.model.LoginUser
 import com.nbscollege_jenjosh.schdulix.model.UserProfile
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
 import com.nbscollege_jenjosh.schdulix.preferences.PreferencesManager
+import com.nbscollege_jenjosh.schdulix.screens.loadingScreen
 import com.nbscollege_jenjosh.schdulix.screens.loginAlert
 import com.nbscollege_jenjosh.schdulix.ui.theme.SchdulixTheme
 import com.nbscollege_jenjosh.schdulix.ui.theme.user.AppViewModelProvider
@@ -87,17 +89,19 @@ fun LoginScreen(
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    val isChecked = remember { mutableStateOf(false) }
+    val isLoading = remember { mutableStateOf(false) }
     var passwordShow: Boolean by remember { mutableStateOf(false) }
     val openDialog = remember { mutableStateOf(false) }
     if (openDialog.value){
         loginAlert(openDialog.value) { openDialog.value = false }
     }
+    if (isLoading.value){
+        loadingScreen(isLoading.value) { isLoading.value = false }
+    }
     val coroutineScope = rememberCoroutineScope()
 
     val context = LocalContext.current
     val preferencesManager = remember { PreferencesManager(context) }
-
 
     Scaffold(
         bottomBar = {
@@ -119,7 +123,9 @@ fun LoginScreen(
                             coroutineScope.launch {
                                 val loginState = viewModel.userUiState
                                 loginState.userDetails = UserDetails(email, password)
+                                isLoading.value = true
                                 val flow : Flow<UserProfile?>? = viewModel.selectUser()
+                                isLoading.value = false
 
                                 if (flow != null) {
                                     flow.collect {

@@ -134,15 +134,14 @@ fun HomePage(
     val context = LocalContext.current
     val preferencesManager = remember { PreferencesManager(context) }
     val username = preferencesManager.getData("username", "")
+    var isLoading by remember { mutableStateOf(true) }
     
     val coroutineScope = rememberCoroutineScope()
     //val schedItems by viewModel.getAllSchedule(username).collectAsState(initial = emptyList())
 
-    /*coroutineScope.launch {
-        viewModel.fetchSchedule(username)
-    }*/
     LaunchedEffect(Unit){
         viewModel.fetchSchedule(username)
+        isLoading = false
     }
     //val schedItems by viewModel.scheduleList.collectAsState(initial = emptyList<ReminderModel>())
     val schedItems = viewModel.mainList
@@ -150,24 +149,6 @@ fun HomePage(
     /*Work Manager Start*/
     val application = LocalContext.current.applicationContext as Application
     val workManager = WorkManager.getInstance(application)
-    /*val workBuilder = OneTimeWorkRequestBuilder<notificationReminder>()
-    //val workBuilder = PeriodicWorkRequestBuilder<notificationReminder>(10,TimeUnit.SECONDS)
-
-    workBuilder.setInputData(
-        workDataOf(
-            "NAME" to "HELLO",
-            "MESSAGE" to "THIS IS SAMPLE"
-        )
-    )
-
-    //val duration: Long = "82233213123L".toLong()
-    //val unit: TimeUnit = TimeUnit.SECONDS
-    //workBuilder.setInitialDelay(duration, unit)
-    workBuilder.setInitialDelay(5, TimeUnit.SECONDS)
-    workManager.enqueue(workBuilder.build())
-     */
-    //workManager.enqueueUniquePeriodicWork("S1", ExistingPeriodicWorkPolicy.UPDATE, workBuilder.build())
-    /*Work Manager End*/
 
     Scaffold (
         topBar = {
@@ -259,12 +240,21 @@ fun HomePage(
             Spacer(modifier = Modifier.height(15.dp))
 
             if (schedItems.isEmpty()){
-                Text(
-                    text = "Loading... Please wait....",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 15.sp,
-                    color = Color.Black,
-                )
+                if (isLoading) {
+                    Text(
+                        text = "Loading... Please wait....",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = Color.Black,
+                    )
+                }else{
+                    Text(
+                        text = "No record found",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = Color.Black,
+                    )
+                }
             }else {
                 LazyColumn {
                     itemsIndexed(schedItems) { index, data ->
@@ -288,7 +278,7 @@ fun HomePage(
                             isExpired = true
 
                             // kill the schedule
-                            workManager.cancelAllWorkByTag("${data.title}")
+                            workManager.cancelAllWorkByTag("${data.id}")
                         } else {
                             val dueDate = Calendar.getInstance()
                             val currentDate = Calendar.getInstance()
@@ -296,7 +286,7 @@ fun HomePage(
                             // select the details here
                             //val listItem = viewModel.getAllScheduleDtl(username, data.title).collectAsState(initial = emptyList())
                             coroutineScope.launch {
-                                viewModel.fetchScheduleDtl(username, data.title)
+                                viewModel.fetchScheduleDtl(username, data.id)
                             }
                             val listItem =
                                 viewModel.scheduleListDtl.collectAsState(initial = emptyList())
@@ -325,12 +315,12 @@ fun HomePage(
                                             TimeUnit.DAYS
                                         )
                                             .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
-                                            .addTag("${data.title}")
+                                            .addTag("${data.id}")
                                     workBuilder.setInputData(
                                         workDataOf(
                                             "ID" to "${it.id}1",
-                                            "NAME" to data.title,
-                                            "MESSAGE" to "This is schedule is now!"
+                                            "NAME" to data.id,
+                                            "MESSAGE" to "This schedule is now!"
                                         )
                                     )
                                     workManager.enqueueUniquePeriodicWork(
@@ -345,7 +335,7 @@ fun HomePage(
 
                         ElevatedCard(
                             onClick = {
-                                navController.navigate("EditSchedule/${data.title}")
+                                navController.navigate("EditSchedule/${data.id}")
                             },
                             elevation = CardDefaults.cardElevation(
                                 defaultElevation = 6.dp
@@ -381,15 +371,16 @@ fun HomePage(
                                     IconButton(
                                         onClick = {
                                             // kill the schedule
-                                            workManager.cancelAllWorkByTag("${data.title}")
+                                            workManager.cancelAllWorkByTag("${data.id}")
                                             coroutineScope.launch {
                                                 val schedUiState = viewModel.reminderUiState
                                                 schedUiState.reminderDetails = ReminderDetails(
+                                                    data.id,
                                                     data.title,
                                                     data.startDate,
                                                     data.endDate
                                                 )
-                                                viewModel.deleteSchedule(username, data.title)
+                                                viewModel.deleteSchedule(username, data.id)
                                                 navController.navigate(MainScreen.HomePage.name)
                                             }
                                         }

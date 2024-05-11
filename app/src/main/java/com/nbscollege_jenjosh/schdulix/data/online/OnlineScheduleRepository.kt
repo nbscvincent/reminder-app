@@ -74,7 +74,7 @@ class OnlineScheduleRepository(private val ktorClient: HttpClient = KtorClient()
         TODO("Not yet implemented")
     }
 
-    override suspend fun deleteSchedule(username: String, title: String) {
+    override suspend fun deleteSchedule(username: String, id: Int) {
         val cl = ktorClient.request(
             HttpRoutes.login
         ) {
@@ -85,7 +85,7 @@ class OnlineScheduleRepository(private val ktorClient: HttpClient = KtorClient()
             setBody(MultiPartFormDataContent(formData {
                 append("type", "delete_schedule")
                 append("username", username)
-                append("title", title)
+                append("id", id)
             }))
         }
         val response = cl.body<ResponseAPIDefault>()
@@ -111,7 +111,7 @@ class OnlineScheduleRepository(private val ktorClient: HttpClient = KtorClient()
         return response
     }
 
-    override suspend fun getScheduleStream(username: String, title: String): Flow<ReminderModel> {
+    override suspend fun getScheduleStream(username: String, id: Int): Flow<ReminderModel> {
         val cl = ktorClient.request(
             HttpRoutes.login
         ) {
@@ -122,7 +122,7 @@ class OnlineScheduleRepository(private val ktorClient: HttpClient = KtorClient()
             setBody(MultiPartFormDataContent(formData {
                 append("type", "get_schedule_hdr")
                 append("username", username)
-                append("title", title)
+                append("id", id)
             }))
         }
         val response = cl.body<ResponseAPIHdr>()
@@ -175,7 +175,7 @@ class OnlineScheduleRepository(private val ktorClient: HttpClient = KtorClient()
     }
 
 
-    override suspend fun getAllScheduleDtl(username: String, title: String): Flow<List<AddTimeModel>> {
+    override suspend fun getAllScheduleDtl(username: String, id: Int): Flow<List<AddTimeModel>> {
         val cl = ktorClient.request(
             HttpRoutes.login
         ) {
@@ -186,7 +186,7 @@ class OnlineScheduleRepository(private val ktorClient: HttpClient = KtorClient()
             setBody(MultiPartFormDataContent(formData {
                 append("type", "get_schedule_dtl")
                 append("username", username)
-                append("title", title)
+                append("id", id)
             }))
         }
         val response = cl.body<ResponseAPIDtl>()
