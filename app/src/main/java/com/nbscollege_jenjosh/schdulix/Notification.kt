@@ -51,6 +51,9 @@ class notificationReminder(
             .setDefaults(DEFAULT_ALL).setContentIntent(pendingIntent).setAutoCancel(true)
 
         notification.priority = PRIORITY_MAX
+        notification.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+        notification.setPriority(NotificationCompat.PRIORITY_MAX)
+
 
         //if (SDK_INT >= 0) {
             notification.setChannelId(notifChannel)
