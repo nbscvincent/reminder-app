@@ -52,7 +52,7 @@ class notificationReminder(
 
         notification.priority = PRIORITY_MAX
 
-        if (SDK_INT >= 0) {
+        //if (SDK_INT >= 0) {
             notification.setChannelId(notifChannel)
 
             val channel = NotificationChannel(notifChannel, notifName, IMPORTANCE_HIGH)
@@ -63,7 +63,7 @@ class notificationReminder(
             channel.vibrationPattern = longArrayOf(100, 200, 300, 400, 500, 400, 300, 200, 400)
             //channel.setSound(ringtoneManager, audioAttributes)
             notificationManager.createNotificationChannel(channel)
-        }
+        //}
         notificationManager.notify(notificationId, notification.build())
         // end notification here
 

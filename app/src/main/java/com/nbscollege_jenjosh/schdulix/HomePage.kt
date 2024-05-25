@@ -89,8 +89,10 @@ import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.getSystemService
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
@@ -299,7 +301,7 @@ fun HomePage(
                                 if (dueDate.before(currentDate)) {
                                     dueDate.add(Calendar.HOUR_OF_DAY, days.toInt())
                                 }
-                                val timeDiff = dueDate.timeInMillis - currentDate.timeInMillis
+                                var timeDiff = dueDate.timeInMillis - currentDate.timeInMillis
 
                                 val formatter =
                                     DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm", Locale.ENGLISH);
@@ -309,6 +311,7 @@ fun HomePage(
                                     localDate.atOffset(ZoneOffset.UTC).toInstant().toEpochMilli();
 
                                 if (timeDiff > 0) {
+                                    timeDiff = timeDiff - (60000)
                                     val workBuilder =
                                         PeriodicWorkRequestBuilder<notificationReminder>(
                                             1,
@@ -316,6 +319,11 @@ fun HomePage(
                                         )
                                             .setInitialDelay(timeDiff, TimeUnit.MILLISECONDS)
                                             .addTag("${data.id}")
+                                            .setConstraints(
+                                                Constraints.Builder()
+                                                    .setRequiredNetworkType(NetworkType.UNMETERED)
+                                                    .build()
+                                            )
                                     workBuilder.setInputData(
                                         workDataOf(
                                             "ID" to "${it.id}1",
