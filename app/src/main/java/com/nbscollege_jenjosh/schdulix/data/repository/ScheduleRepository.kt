@@ -21,5 +21,5 @@ interface ScheduleRepository {
     suspend fun deleteScheduleDtl(title: String)
     suspend fun getAllScheduleDtl(username: String, id: Int): Flow<List<AddTimeModel>>
     suspend fun insertScheduleDtl(username: String, scheduledtl: AddTimeModel)
-    suspend fun deleteScheduleDtl(username: String, title: String, id: Int?)
+    suspend fun deleteScheduleDtl(username: String, title: Int?, id: Int?)
 }

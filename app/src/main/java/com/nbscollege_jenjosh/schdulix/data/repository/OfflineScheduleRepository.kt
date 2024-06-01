@@ -48,7 +48,7 @@ class OfflineScheduleRepository(private val reminderDao: ReminderModelDao) : Sch
     //override suspend fun insertScheduleDtl(scheduledtl: AddTimeModel) = reminderDao.insertdtlLine(scheduledtl)
 
     override suspend fun deleteScheduleDtl(title: String) = reminderDao.deletedtl(title)
-    override suspend fun deleteScheduleDtl(username: String, title: String, id: Int?) {
+    override suspend fun deleteScheduleDtl(username: String, title: Int?, id: Int?) {
         TODO("Not yet implemented")
     }
 
