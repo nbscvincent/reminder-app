@@ -129,7 +129,7 @@ class ScheduleScreenViewModel(private val scheduleRepository: ScheduleRepository
     }
 
     suspend fun deleteScheduleDtl(username: String){
-        scheduleRepository.deleteScheduleDtl(username, reminderUiState.addSchedLine.title,reminderUiState.addSchedLine.line)
+        scheduleRepository.deleteScheduleDtl(username, reminderUiState.addSchedLine.id,reminderUiState.addSchedLine.line)
     }
 
 }

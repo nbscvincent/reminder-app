@@ -105,7 +105,7 @@ class OnlineScheduleRepository(private val ktorClient: HttpClient = KtorClient()
                 append("dtl", Json.encodeToString(schedule))
             }))
 
-            Timber.i("SAMPLER " + schedule.toString())
+            //Timber.i("SAMPLER " + schedule.toString())
         }
         val response = cl.body<ResponseAPIDefault>()
         return response
@@ -156,7 +156,7 @@ class OnlineScheduleRepository(private val ktorClient: HttpClient = KtorClient()
         TODO("Not yet implemented")
     }
 
-    override suspend fun deleteScheduleDtl(username: String,title: String, id: Int?) {
+    override suspend fun deleteScheduleDtl(username: String,title: Int?, id: Int?) {
         val cl = ktorClient.request(
             HttpRoutes.login
         ) {
@@ -167,7 +167,7 @@ class OnlineScheduleRepository(private val ktorClient: HttpClient = KtorClient()
             setBody(MultiPartFormDataContent(formData {
                 append("type", "delete_schedule_dtl")
                 append("username", username)
-                append("title", title)
+                append("title", title.toString())
                 append("line", id.toString())
             }))
         }

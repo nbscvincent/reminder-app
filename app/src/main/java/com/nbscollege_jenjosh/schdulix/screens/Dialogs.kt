@@ -23,7 +23,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import com.nbscollege_jenjosh.schdulix.model.ReminderModel
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
+import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ReminderDetails
 
 @Composable
 fun Dialogs(
@@ -137,6 +139,45 @@ fun loadingScreen(
                     Text(
                         textAlign = TextAlign.Center,
                         text = "Loading.... Please wait....."
+                    )
+                }
+            },
+            icon = {
+                Icon(imageVector = Icons.Filled.Info , contentDescription = "")
+            }
+        )
+    }
+}
+
+@Composable
+fun confirmationScreen(
+    data: ReminderModel?,
+    showDialog: Boolean,
+    onDismiss: () -> Unit,
+    onConfirmation: ( ReminderModel? ) -> Unit,
+    function: () -> Unit,
+){
+    if (showDialog){
+        AlertDialog(
+            onDismissRequest = { onDismiss() },
+            confirmButton = {
+                TextButton(
+                    onClick = { onConfirmation( data ) }
+                ) {
+                    Text("Confirm")
+                }
+            },
+            text = {
+                Column (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(0.dp)
+                ){
+                    Text(
+                        textAlign = TextAlign.Center,
+                        text = "Are you sure you want to delete? ${data?.title}"
                     )
                 }
             },

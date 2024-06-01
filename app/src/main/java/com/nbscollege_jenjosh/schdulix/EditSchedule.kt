@@ -226,10 +226,10 @@ fun EditSchedule(
                     Button(
                         onClick = {
                             coroutineScope.launch {
-                                val addSchedUiState = viewModel.reminderUiState
-
-                                addSchedUiState.reminderDetails = ReminderDetails(index,username,title,startDate,endDate,username)
                                 isLoading.value = true
+                                val addSchedUiState = viewModel.reminderUiState
+                                addSchedUiState.reminderDetails = ReminderDetails(index,username,title,startDate,endDate,username)
+
                                 val response = viewModel.updateSchedule()
                                 isLoading.value = false
                                 if (response != null) {
@@ -387,12 +387,14 @@ fun EditSchedule(
                     onClick = {
                         if(stringLabel != "") {
                             coroutineScope.launch {
+                                isLoading.value = true
                                 val addSchedUiState = viewModel.reminderUiState
 
                                 addSchedUiState.addSchedLine = ReminderTimeDetails(index, title,1,stringLabel)
                                 viewModel.insertScheduleDetail(username)
                                 stringLabel = "";
 
+                                isLoading.value = false
                                 navController.navigate("EditSchedule/${index}")
                             }
                         }

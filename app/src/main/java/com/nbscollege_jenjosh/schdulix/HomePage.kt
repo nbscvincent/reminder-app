@@ -96,6 +96,7 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import androidx.work.WorkRequest
 import androidx.work.workDataOf
 import com.nbscollege_jenjosh.schdulix.model.AddTimeModel
 import com.nbscollege_jenjosh.schdulix.model.ReminderModel
@@ -104,6 +105,7 @@ import com.nbscollege_jenjosh.schdulix.model.timeData
 import com.nbscollege_jenjosh.schdulix.model.timeTmpData
 import com.nbscollege_jenjosh.schdulix.navigation.routes.MainScreen
 import com.nbscollege_jenjosh.schdulix.preferences.PreferencesManager
+import com.nbscollege_jenjosh.schdulix.screens.confirmationScreen
 import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ReminderDetails
 import com.nbscollege_jenjosh.schdulix.ui.theme.reminder.ScheduleScreenViewModel
 import com.nbscollege_jenjosh.schdulix.ui.theme.user.AppViewModelProvider
@@ -137,9 +139,9 @@ fun HomePage(
     val preferencesManager = remember { PreferencesManager(context) }
     val username = preferencesManager.getData("username", "")
     var isLoading by remember { mutableStateOf(true) }
+    var isConfirm by remember { mutableStateOf(false) }
     
     val coroutineScope = rememberCoroutineScope()
-    //val schedItems by viewModel.getAllSchedule(username).collectAsState(initial = emptyList())
 
     LaunchedEffect(Unit){
         viewModel.fetchSchedule(username)
@@ -151,6 +153,18 @@ fun HomePage(
     /*Work Manager Start*/
     val application = LocalContext.current.applicationContext as Application
     val workManager = WorkManager.getInstance(application)
+
+    /*val workBuilder = OneTimeWorkRequestBuilder<notificationReminder>()
+    workBuilder.setInputData(
+        workDataOf(
+            "ID" to "SAMPLE1",
+            "NAME" to "SAMPLE",
+            "MESSAGE" to "You have a schedule task!",
+        )
+    )
+    workManager.enqueue(workBuilder.build())*/
+
+    var delReminder : ReminderModel? = null
 
     Scaffold (
         topBar = {
@@ -262,12 +276,12 @@ fun HomePage(
                     itemsIndexed(schedItems) { index, data ->
                         var isExpired by remember { mutableStateOf(false) }
 
-                        var formatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy")
+                        val formatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy")
 
-                        var start = LocalDate.parse(data.startDate)
-                        var end = LocalDate.parse(data.endDate)
-                        var dateStart = start.format(formatter)
-                        var dateEnd = end.format(formatter)
+                        val start = LocalDate.parse(data.startDate)
+                        val end = LocalDate.parse(data.endDate)
+                        val dateStart = start.format(formatter)
+                        val dateEnd = end.format(formatter)
 
                         /*Work Manager Start*/
                         val schedStart = LocalDate.parse(data.startDate)
@@ -311,7 +325,7 @@ fun HomePage(
                                     localDate.atOffset(ZoneOffset.UTC).toInstant().toEpochMilli();
 
                                 if (timeDiff > 0) {
-                                    timeDiff = timeDiff - (60000)
+                                    timeDiff -= (60000)
                                     val workBuilder =
                                         PeriodicWorkRequestBuilder<notificationReminder>(
                                             1,
@@ -327,15 +341,27 @@ fun HomePage(
                                     workBuilder.setInputData(
                                         workDataOf(
                                             "ID" to "${it.id}1",
-                                            "NAME" to data.id,
-                                            "MESSAGE" to "You have a schedule task!"
+                                            "NAME" to data.title,
+                                            "MESSAGE" to "You have a schedule task!",
                                         )
                                     )
                                     workManager.enqueueUniquePeriodicWork(
                                         "${it.id}1",
-                                        ExistingPeriodicWorkPolicy.KEEP,
+                                        //ExistingPeriodicWorkPolicy.KEEP,
+                                        ExistingPeriodicWorkPolicy.UPDATE,
                                         workBuilder.build()
                                     )
+
+                                    /*val workBuilder = OneTimeWorkRequestBuilder<notificationReminder>()
+                                    workBuilder.setInputData(
+                                        workDataOf(
+                                            "ID" to "${it.id}1",
+                                            "NAME" to data.title,
+                                            "MESSAGE" to "You have a schedule task!",
+                                        )
+                                    )
+                                    workManager.enqueue(workBuilder.build())
+                                     */
                                 }
                             }
                         }
@@ -378,6 +404,9 @@ fun HomePage(
                                     )
                                     IconButton(
                                         onClick = {
+                                            //delReminder = data
+                                            //isConfirm = true
+
                                             // kill the schedule
                                             workManager.cancelAllWorkByTag("${data.id}")
                                             coroutineScope.launch {
@@ -386,7 +415,7 @@ fun HomePage(
                                                     data.id,
                                                     data.title,
                                                     data.startDate,
-                                                    data.endDate
+                                                    data.endDate,
                                                 )
                                                 viewModel.deleteSchedule(username, data.id)
                                                 navController.navigate(MainScreen.HomePage.name)
